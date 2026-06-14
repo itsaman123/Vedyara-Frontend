@@ -1,8 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ||
-  "https://vedyara-backend.onrender.com";
+import { API_BASE_URL } from "../config/environment";
 
 export type Product = {
   _id: string;

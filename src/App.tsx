@@ -5,12 +5,9 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
-import { initGA, trackPageView } from "./analytics";
+import { initClarity } from "./analytics";
 
-/* Initialize GA at module load — must run before any route-tracking
-   effect fires, otherwise the first page_view is silently dropped
-   (window.gtag wouldn't exist yet when child effects run on mount). */
-initGA();
+initClarity();
 import { AnimatePresence, motion } from "framer-motion";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -156,13 +153,12 @@ function NotFound() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Scroll restoration + Analytics page view tracking
+   Scroll restoration
 ───────────────────────────────────────────────────────────── */
 function RouteScrollToTop() {
   const location = useLocation();
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
-    trackPageView(location.pathname + location.search);
   }, [location.pathname, location.search]);
   return null;
 }

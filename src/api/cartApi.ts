@@ -1,8 +1,6 @@
 import type { ApiResponse } from "./productApi";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ||
-  "https://vedyara-backend.onrender.com";
+import { API_BASE_URL } from "../config/environment";
 
 export type CartItem = {
   productId: string;

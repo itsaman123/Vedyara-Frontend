@@ -1,6 +1,6 @@
 import type { ApiResponse } from "./productApi";
 
-const API_BASE_URL =`https://vedyara-backend.onrender.com`
+import { API_BASE_URL } from "../config/environment";
 
 const getHeaders = () => {
   const token = localStorage.getItem("token");

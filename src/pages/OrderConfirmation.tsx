@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { trackPurchase } from "../analytics";
+
 import { motion } from "framer-motion";
 import {
   FiCheck,
@@ -52,15 +53,10 @@ export default function OrderConfirmation() {
     }
   }, [state, navigate]);
 
-  // Fire GA4 purchase event once on mount
+  // Tag purchase in Clarity on mount
   useEffect(() => {
     if (!state?.orderId) return;
-    trackPurchase({
-      orderId: state.orderId,
-      orderNumber: state.orderNumber,
-      items: state.items,
-      totalAmount: state.totalAmount,
-    });
+    trackPurchase({ orderNumber: state.orderNumber, totalAmount: state.totalAmount });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
