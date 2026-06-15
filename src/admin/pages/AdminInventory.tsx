@@ -11,6 +11,7 @@ import {
 } from "react-icons/fi";
 import { useAdminProducts } from "./apiCalls";
 import { useDebounce } from "../useDebounce";
+import { AdminStatSkeleton, AdminInventoryTableSkeleton } from "../../components/Skeletons";
 
 const ITEMS_PER_PAGE = 10;
 const REORDER_LEVEL = 20;
@@ -97,7 +98,7 @@ export default function AdminInventory() {
           </div>
           <span className="admin-overview-stat-label">Total SKUs</span>
           <span className="admin-overview-stat-value">
-            {inventoryQuery.isLoading ? "…" : totalItems}
+            {inventoryQuery.isLoading ? <AdminStatSkeleton /> : totalItems}
           </span>
         </div>
         <div className="admin-overview-stat">
@@ -106,7 +107,7 @@ export default function AdminInventory() {
           </div>
           <span className="admin-overview-stat-label">Healthy Stock</span>
           <span className="admin-overview-stat-value" style={{ color: "#6B8E23" }}>
-            {inventoryQuery.isLoading ? "…" : healthyCount}
+            {inventoryQuery.isLoading ? <AdminStatSkeleton /> : healthyCount}
           </span>
         </div>
         <div className="admin-overview-stat">
@@ -115,7 +116,7 @@ export default function AdminInventory() {
           </div>
           <span className="admin-overview-stat-label">Low / Out</span>
           <span className="admin-overview-stat-value" style={{ color: "#c0392b" }}>
-            {inventoryQuery.isLoading ? "…" : lowCount + outCount}
+            {inventoryQuery.isLoading ? <AdminStatSkeleton /> : lowCount + outCount}
           </span>
         </div>
       </div>
@@ -213,13 +214,15 @@ export default function AdminInventory() {
                   );
                 })}
               </AnimatePresence>
-              {products.length === 0 && (
+              {inventoryQuery.isLoading ? (
+                <AdminInventoryTableSkeleton rows={ITEMS_PER_PAGE} />
+              ) : products.length === 0 ? (
                 <tr>
                   <td colSpan={6} style={{ textAlign: "center", padding: "40px", color: "#aaa", fontSize: "0.85rem" }}>
-                    {inventoryQuery.isLoading ? "Loading…" : "No items match your filters."}
+                    No items match your filters.
                   </td>
                 </tr>
-              )}
+              ) : null}
             </tbody>
           </table>
         </div>

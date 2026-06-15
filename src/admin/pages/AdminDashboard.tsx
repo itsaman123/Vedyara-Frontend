@@ -8,6 +8,7 @@ import {
   FiBox,
 } from "react-icons/fi";
 import { useAdminProductSummary } from "./apiCalls";
+import { AdminStatSkeleton } from "../../components/Skeletons";
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -42,7 +43,7 @@ export default function AdminDashboard() {
           </div>
           <span className="admin-overview-stat-label">TOTAL PRODUCTS</span>
           <span className="admin-overview-stat-value">
-            {summaryQuery.isLoading ? "..." : totalProducts}
+            {summaryQuery.isLoading ? <AdminStatSkeleton /> : totalProducts}
           </span>
         </motion.div>
 
@@ -52,7 +53,7 @@ export default function AdminDashboard() {
           </div>
           <span className="admin-overview-stat-label">IN STOCK PRODUCTS</span>
           <span className="admin-overview-stat-value" style={{ color: "#6B8E23" }}>
-            {summaryQuery.isLoading ? "..." : inStock}
+            {summaryQuery.isLoading ? <AdminStatSkeleton /> : inStock}
           </span>
         </motion.div>
 
@@ -62,7 +63,7 @@ export default function AdminDashboard() {
           </div>
           <span className="admin-overview-stat-label">OUT OF STOCK</span>
           <span className="admin-overview-stat-value" style={{ color: "#c0392b" }}>
-            {summaryQuery.isLoading ? "..." : outOfStock}
+            {summaryQuery.isLoading ? <AdminStatSkeleton /> : outOfStock}
           </span>
         </motion.div>
       </div>

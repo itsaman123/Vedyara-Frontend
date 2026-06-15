@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiTrash2, FiPlus, FiMinus, FiArrowRight, FiShoppingBag, FiShield } from "react-icons/fi";
 import { useCart } from "../context/CartContext";
+import { CartItemSkeleton } from "../components/Skeletons";
 
 const Cart: React.FC = () => {
   const { cart, updateQuantity, removeFromCart, isLoading } = useCart();
@@ -10,8 +11,16 @@ const Cart: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#faf9f7]">
-        <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin" />
+      <div className="min-h-screen pt-32 pb-20 bg-[#faf9f7]">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-10 w-56 bg-[#f0ede8] rounded-xl animate-pulse mb-10" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="lg:col-span-2 space-y-6">
+              {[...Array(3)].map((_, i) => <CartItemSkeleton key={i} />)}
+            </div>
+            <div className="bg-white rounded-3xl p-8 h-64 animate-pulse" />
+          </div>
+        </div>
       </div>
     );
   }

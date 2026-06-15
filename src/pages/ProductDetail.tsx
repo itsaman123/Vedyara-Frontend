@@ -19,6 +19,7 @@ import { useProduct } from "../api/productApi";
 import { products as localProducts, type Product } from "../data/products";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { ProductDetailSkeleton } from "../components/Skeletons";
 
 const badgeConfig: Record<string, { bg: string; color: string; emoji: string }> = {
   "Best Seller": { bg: "linear-gradient(135deg,#D4AF37,#e8c84a)", color: "#3E2F1C", emoji: "🏆" },
@@ -113,11 +114,7 @@ export default function ProductDetail() {
     }
   }, [product]);
 
-  if (isLoading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin" />
-    </div>
-  );
+  if (isLoading) return <ProductDetailSkeleton />;
 
   if (isError || (!isLoading && !product)) {
     return (

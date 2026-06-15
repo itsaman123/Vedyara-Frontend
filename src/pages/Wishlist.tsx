@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiHeart, FiShoppingBag, FiTrash2 } from "react-icons/fi";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
+import { WishlistCardSkeleton } from "../components/Skeletons";
 
 const Wishlist: React.FC = () => {
   const { wishlist, toggleWishlist, isLoading } = useWishlist();
@@ -12,8 +13,13 @@ const Wishlist: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#faf9f7]">
-        <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin" />
+      <div className="min-h-screen pt-32 pb-20 bg-[#faf9f7]">
+        <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12">
+          <div className="h-10 w-48 bg-[#f0ede8] rounded-xl animate-pulse mb-10" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
+            {[...Array(8)].map((_, i) => <WishlistCardSkeleton key={i} />)}
+          </div>
+        </div>
       </div>
     );
   }

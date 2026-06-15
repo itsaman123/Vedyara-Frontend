@@ -39,7 +39,7 @@ export default function Navbar() {
   // Close mobile menu on resize
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768) setIsMobileOpen(false);
+      if (window.innerWidth >= 1024) setIsMobileOpen(false);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -103,7 +103,7 @@ export default function Navbar() {
             </Link>
 
             {/* ── DESKTOP NAV ── */}
-            <nav className="hidden md:flex items-center gap-8">
+            <nav className="hidden lg:flex items-center gap-5 xl:gap-8">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.to}
@@ -132,7 +132,7 @@ export default function Navbar() {
             </nav>
 
             {/* ── DESKTOP CTA ── */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-3">
               {/* Wishlist, Cart, and Profile icons */}
               <div className="flex items-center gap-2 mr-2">
                 <motion.button
@@ -205,7 +205,7 @@ export default function Navbar() {
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsMobileOpen((prev) => !prev)}
               aria-label={isMobileOpen ? "Close menu" : "Open menu"}
-              className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl transition-colors duration-300 focus:outline-none"
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl transition-colors duration-300 focus:outline-none"
               style={{
                 background: "rgba(62,47,28,0.07)",
                 color: "#3E2F1C",
@@ -270,7 +270,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-30 md:hidden"
+              className="fixed inset-0 z-30 lg:hidden"
               style={{
                 background: "rgba(20,12,4,0.52)",
                 backdropFilter: "blur(4px)",
@@ -285,7 +285,7 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 280, damping: 30 }}
-              className="fixed top-0 right-0 bottom-0 z-40 flex flex-col md:hidden"
+              className="fixed top-0 right-0 bottom-0 z-40 flex flex-col lg:hidden"
               style={{
                 width: "min(85vw, 320px)",
                 background: "#F8F5F0",

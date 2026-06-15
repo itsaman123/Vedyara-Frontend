@@ -5,6 +5,7 @@ import { FiPackage, FiLogOut, FiUser, FiClock, FiCheckCircle } from "react-icons
 import { getMyOrders } from "../api/orderApi";
 import { getProfile } from "../api/userApi";
 import { toast } from "react-hot-toast";
+import { OrderHistorySkeleton } from "../components/Skeletons";
 
 interface OrderItem {
   product: {
@@ -142,9 +143,7 @@ export default function Profile() {
               <h1 className="font-serif font-bold text-3xl text-brand-brown mb-8">Order History</h1>
               
               {isLoading ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="w-10 h-10 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin" />
-                </div>
+                <OrderHistorySkeleton />
               ) : orders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-64 text-center">
                   <FiPackage size={48} className="text-stone-300 mb-4" />

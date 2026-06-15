@@ -5,6 +5,7 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
+import { SkeletonTheme } from "react-loading-skeleton";
 import { initClarity } from "./analytics";
 
 initClarity();
@@ -203,9 +204,11 @@ function AppShell() {
 ═══════════════════════════════════════════════════════════ */
 export default function App() {
   return (
-    <Router>
-      <RouteScrollToTop />
-      <AppShell />
-    </Router>
+    <SkeletonTheme baseColor="#f0ede8" highlightColor="#f9f5ee">
+      <Router>
+        <RouteScrollToTop />
+        <AppShell />
+      </Router>
+    </SkeletonTheme>
   );
 }

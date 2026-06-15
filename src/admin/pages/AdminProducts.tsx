@@ -17,6 +17,7 @@ import {
   type AdminProduct,
 } from "./apiCalls";
 import { useDebounce } from "../useDebounce";
+import { AdminProductTableSkeleton } from "../../components/Skeletons";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -252,13 +253,15 @@ export default function AdminProducts() {
                   );
                 })}
               </AnimatePresence>
-              {products.length === 0 && (
+              {productsQuery.isLoading ? (
+                <AdminProductTableSkeleton rows={ITEMS_PER_PAGE} />
+              ) : products.length === 0 ? (
                 <tr>
                   <td colSpan={7} style={{ textAlign: "center", padding: "40px", color: "#aaa", fontSize: "0.85rem" }}>
-                    {productsQuery.isLoading ? "Loading…" : "No products found."}
+                    No products found.
                   </td>
                 </tr>
-              )}
+              ) : null}
             </tbody>
           </table>
         </div>

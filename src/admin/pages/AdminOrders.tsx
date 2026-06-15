@@ -10,6 +10,7 @@ import {
 } from "react-icons/fi";
 import { useAdminOrders, useAdminOrderSummary, type AdminOrder } from "./apiCalls";
 import { useDebounce } from "../useDebounce";
+import { AdminStatSkeleton, AdminOrderTableSkeleton } from "../../components/Skeletons";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -87,7 +88,7 @@ export default function AdminOrders() {
           </div>
           <span className="admin-overview-stat-label">Total Orders</span>
           <span className="admin-overview-stat-value">
-            {summaryQuery.isLoading ? "…" : summary?.totalOrders ?? 0}
+            {summaryQuery.isLoading ? <AdminStatSkeleton /> : summary?.totalOrders ?? 0}
           </span>
         </div>
         <div className="admin-overview-stat">
@@ -96,7 +97,7 @@ export default function AdminOrders() {
           </div>
           <span className="admin-overview-stat-label">Completed</span>
           <span className="admin-overview-stat-value" style={{ color: "#6B8E23" }}>
-            {summaryQuery.isLoading ? "…" : summary?.completedOrders ?? 0}
+            {summaryQuery.isLoading ? <AdminStatSkeleton /> : summary?.completedOrders ?? 0}
           </span>
         </div>
         <div className="admin-overview-stat">
@@ -105,7 +106,7 @@ export default function AdminOrders() {
           </div>
           <span className="admin-overview-stat-label">In Progress</span>
           <span className="admin-overview-stat-value" style={{ color: "#b8961f" }}>
-            {summaryQuery.isLoading ? "…" : summary?.inProgressOrders ?? 0}
+            {summaryQuery.isLoading ? <AdminStatSkeleton /> : summary?.inProgressOrders ?? 0}
           </span>
         </div>
       </div>
@@ -180,13 +181,15 @@ export default function AdminOrders() {
                   </motion.tr>
                 ))}
               </AnimatePresence>
-              {orders.length === 0 && (
+              {ordersQuery.isLoading ? (
+                <AdminOrderTableSkeleton rows={ITEMS_PER_PAGE} />
+              ) : orders.length === 0 ? (
                 <tr>
                   <td colSpan={7} style={{ textAlign: "center", padding: "40px", color: "#aaa", fontSize: "0.85rem" }}>
-                    {ordersQuery.isLoading ? "Loading…" : "No orders found."}
+                    No orders found.
                   </td>
                 </tr>
-              )}
+              ) : null}
             </tbody>
           </table>
         </div>
