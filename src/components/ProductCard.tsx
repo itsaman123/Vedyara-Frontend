@@ -1,21 +1,18 @@
 import { motion } from "framer-motion";
-import { FiShoppingBag, FiHeart } from "react-icons/fi";
-import { useCart } from "../context/CartContext";
+import { FiHeart, FiExternalLink } from "react-icons/fi";
 import { useWishlist } from "../context/WishlistContext";
 import type { Product as ApiProduct } from "../api/productApi";
+import { AMAZON_STORE_URL } from "../config/environment";
 
 export default function ProductCard({
   product,
   index,
   onView,
-  onBuyNow,
 }: {
   product: ApiProduct;
   index: number;
   onView: (p: ApiProduct) => void;
-  onBuyNow: (p: ApiProduct) => void;
 }) {
-  const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const wishlisted = isInWishlist(product._id);
 
@@ -102,32 +99,20 @@ export default function ProductCard({
                 <p className="text-[11px] text-gray-400 mt-0.5">{product.unit}</p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={(e) => { e.stopPropagation(); onBuyNow(product); }}
-                  aria-label={`Buy ${product.name} now`}
-                  className="h-9 px-4 rounded-xl font-semibold text-xs transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
-                  style={{
-                    background: "rgba(62,47,28,0.06)",
-                    color: "#3E2F1C",
-                    border: "1px solid rgba(62,47,28,0.1)",
-                  }}
-                >
-                  Buy Now
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); addToCart(product); }}
-                  aria-label={`Add ${product.name} to cart`}
-                  className="w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200 active:scale-90"
-                  style={{
-                    background: "linear-gradient(135deg, #D4AF37, #e8c84a)",
-                    color: "#3E2F1C",
-                    boxShadow: "0 4px 12px rgba(212,175,55,0.35)",
-                  }}
-                >
-                  <FiShoppingBag size={15} strokeWidth={2.2} />
-                </button>
-              </div>
+              <a
+                href={AMAZON_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl font-bold text-xs transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
+                style={{
+                  background: "#FF9900",
+                  color: "#1a1a1a",
+                  boxShadow: "0 4px 12px rgba(255,153,0,0.3)",
+                }}
+              >
+                Order on Amazon <FiExternalLink size={11} />
+              </a>
             </div>
           </div>
         </div>

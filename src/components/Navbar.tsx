@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiMenu, FiX, FiShoppingBag, FiHeart, FiUser } from "react-icons/fi";
+import { FiMenu, FiX, FiShoppingBag, FiHeart, FiUser, FiExternalLink } from "react-icons/fi";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import LogoBrand from "./LogoBrand";
+import { AMAZON_STORE_URL } from "../config/environment";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -16,6 +17,9 @@ const navLinks = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [barDismissed, setBarDismissed] = useState(
+    () => sessionStorage.getItem("dev-bar-dismissed") === "1"
+  );
   const navigate = useNavigate();
   const { cartCount } = useCart();
   const { wishlistCount } = useWishlist();
@@ -76,6 +80,45 @@ export default function Navbar() {
               }
         }
       >
+        {/* ── Dev phase announcement bar ── */}
+        <AnimatePresence>
+          {!barDismissed && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              style={{ overflow: "hidden", background: "#3E2F1C" }}
+            >
+              <div className="flex items-center justify-center gap-2 px-4 py-2 text-center relative">
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#f5efe6", letterSpacing: "0.02em" }}>
+                  🚧 Website in <strong style={{ color: "#D4AF37" }}>Development Phase</strong> — Orders are currently accepted on <strong style={{ color: "#FF9900" }}>Amazon India</strong> only
+                </span>
+                <a
+                  href={AMAZON_STORE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold transition-opacity hover:opacity-80 flex-shrink-0"
+                  style={{ background: "#FF9900", color: "#1a1a1a" }}
+                >
+                  Order on Amazon <FiExternalLink size={10} />
+                </a>
+                <button
+                  onClick={() => {
+                    sessionStorage.setItem("dev-bar-dismissed", "1");
+                    setBarDismissed(true);
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full opacity-60 hover:opacity-100 transition-opacity"
+                  style={{ color: "#f5efe6" }}
+                  aria-label="Dismiss"
+                >
+                  <FiX size={12} />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="px-5 sm:px-8 lg:px-12">
           <div
             className="flex items-center justify-between"

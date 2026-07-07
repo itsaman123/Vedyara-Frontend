@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ProductCardSkeleton, ProductListRowSkeleton } from "../components/Skeletons";
 import ProductCard from "../components/ProductCard";
 import {
-  FiSearch, FiX, FiShoppingBag, FiHeart, FiArrowRight,
-  FiCheck, FiPackage, FiShield,
+  FiSearch, FiX, FiHeart, FiArrowRight,
+  FiCheck, FiPackage, FiShield, FiExternalLink, FiShoppingBag,
 } from "react-icons/fi";
 import { FaStar, FaLeaf } from "react-icons/fa";
 import { useProducts, type Product as ApiProduct } from "../api/productApi";
@@ -13,8 +13,8 @@ import { categories } from "../data/products";
 import HoneyImg from "../assets/image-1.jpg";
 import HaldiImg from "../assets/haldi.jpeg";
 import DhaniyaImg from "../assets/dhaniya.jpeg";
-import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { AMAZON_STORE_URL } from "../config/environment";
 
 /* ═══════════════════════════════════════════════════════════
    LIST ROW — premium list view
@@ -23,14 +23,11 @@ const ProductListRow = ({
   product,
   index,
   onView,
-  onBuyNow,
 }: {
   product: ApiProduct;
   index: number;
   onView: (p: ApiProduct) => void;
-  onBuyNow: (p: ApiProduct) => void;
 }) => {
-  const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const wishlisted = isInWishlist(product._id);
   const displayPrice = product.discountedPrice !== null ? product.discountedPrice : product.price;
@@ -120,21 +117,16 @@ const ProductListRow = ({
             >
               <FiHeart size={15} fill={wishlisted ? "#fff" : "transparent"} />
             </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); addToCart(product); }}
-              className="h-9 px-4 flex items-center gap-2 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95"
-              style={{ background: "rgba(62,47,28,0.07)", color: "#3E2F1C" }}
+            <a
+              href={AMAZON_STORE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="h-9 px-4 flex items-center gap-1.5 rounded-xl font-bold text-sm transition-all duration-200 active:scale-95"
+              style={{ background: "#FF9900", color: "#1a1a1a", boxShadow: "0 4px 12px rgba(255,153,0,0.25)" }}
             >
-              <FiShoppingBag size={14} />
-              Cart
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); onBuyNow(product); }}
-              className="h-9 px-5 flex items-center rounded-xl font-bold text-sm transition-all duration-200 active:scale-95"
-              style={{ background: "linear-gradient(135deg, #D4AF37, #e8c84a)", color: "#3E2F1C" }}
-            >
-              Buy Now
-            </button>
+              Order on Amazon <FiExternalLink size={12} />
+            </a>
           </div>
         </div>
       </div>
@@ -202,10 +194,6 @@ export default function Products() {
 
   const products = useMemo(() => data?.items ?? [], [data]);
   const totalCount = data?.pagination.total ?? 0;
-
-  const handleBuyNow = async (product: ApiProduct) => {
-    navigate("/checkout", { state: { isDirectBuy: true, product, quantity: 1 } });
-  };
 
   const handleView = (product: ApiProduct) => navigate(`/product/${product.slug}`);
 
@@ -624,7 +612,6 @@ export default function Products() {
                     product={product}
                     index={i}
                     onView={handleView}
-                    onBuyNow={handleBuyNow}
                   />
                 ) : (
                   <ProductListRow
@@ -632,7 +619,6 @@ export default function Products() {
                     product={product}
                     index={i}
                     onView={handleView}
-                    onBuyNow={handleBuyNow}
                   />
                 )
               )}

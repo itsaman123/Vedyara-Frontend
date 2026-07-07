@@ -1,14 +1,13 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiHeart, FiShoppingBag, FiTrash2 } from "react-icons/fi";
+import { FiHeart, FiTrash2, FiExternalLink } from "react-icons/fi";
 import { useWishlist } from "../context/WishlistContext";
-import { useCart } from "../context/CartContext";
 import { WishlistCardSkeleton } from "../components/Skeletons";
+import { AMAZON_STORE_URL } from "../config/environment";
 
 const Wishlist: React.FC = () => {
   const { wishlist, toggleWishlist, isLoading } = useWishlist();
-  const { addToCart } = useCart();
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -108,15 +107,18 @@ const Wishlist: React.FC = () => {
                   </div>
 
                   <div className="mt-auto space-y-3">
-                    <motion.button
+                    <motion.a
+                      href={AMAZON_STORE_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => addToCart(product)}
-                      className="w-full py-3 rounded-xl bg-amber-600 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2"
+                      className="w-full py-3 rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2"
+                      style={{ background: "#FF9900", color: "#1a1a1a" }}
                     >
-                      <FiShoppingBag size={16} />
-                      Add to Cart
-                    </motion.button>
+                      <FiExternalLink size={16} />
+                      Order on Amazon
+                    </motion.a>
                     <button
                       onClick={() => navigate(`/product/${product.slug}`)}
                       className="w-full py-3 rounded-xl border border-gray-100 text-gray-500 font-semibold text-sm hover:bg-gray-50 transition-colors"

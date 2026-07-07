@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiX, FiCheck, FiPackage, FiHeart, FiShare2, FiShoppingBag } from "react-icons/fi";
+import { FiX, FiCheck, FiPackage, FiHeart, FiShare2, FiExternalLink } from "react-icons/fi";
 
-import { useCart } from "../context/CartContext";
+import { AMAZON_STORE_URL } from "../config/environment";
 
 interface ProductModalProps {
   product: any | null;
@@ -40,7 +40,6 @@ function StarRating({ rating }: { rating: number }) {
 export default function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
   const [imgError, setImgError] = useState(false);
   const [liked, setLiked] = useState(false);
-  const { addToCart } = useCart();
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -395,24 +394,22 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                       transition={{ delay: 0.65, type: "spring", stiffness: 200 }}
                       className="flex gap-3 pt-2 mt-auto"
                     >
-                      <motion.button
+                      <motion.a
+                        href={AMAZON_STORE_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         whileHover={{ scale: 1.02, y: -2 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={async () => {
-                          if (product) {
-                            await addToCart(product);
-                            onClose();
-                          }
-                        }}
+                        onClick={(e) => e.stopPropagation()}
                         className="flex-1 flex items-center justify-center gap-2.5 py-4 rounded-2xl font-bold text-sm"
                         style={{
-                          background: "linear-gradient(135deg, #D4AF37, #e8c84a)",
-                          color: "#3E2F1C",
-                          boxShadow: "0 8px 24px rgba(212,175,55,0.35)",
+                          background: "#FF9900",
+                          color: "#1a1a1a",
+                          boxShadow: "0 8px 24px rgba(255,153,0,0.3)",
                         }}
                       >
-                        <FiShoppingBag size={18} /> Add to Cart
-                      </motion.button>
+                        <FiExternalLink size={18} /> Order on Amazon India
+                      </motion.a>
 
                       <motion.button
                         whileHover={{ scale: 1.05 }}
@@ -435,7 +432,18 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                       className="text-xs text-center"
                       style={{ color: "rgba(62,47,28,0.3)" }}
                     >
-                      🚀 Coming soon on Amazon India · Free shipping on orders above ₹499
+                      🛒 Also available on{" "}
+                      <a
+                        href={AMAZON_STORE_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-0.5 font-semibold hover:underline"
+                        style={{ color: "#FF9900" }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Amazon India <FiExternalLink size={10} />
+                      </a>
+                      {" "}· Free shipping on orders above ₹499
                     </motion.p>
                   </div>
                 </div>

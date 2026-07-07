@@ -215,8 +215,6 @@ export default function Home() {
   const featuredProducts = useMemo(() => data?.items ?? [], [data]);
 
   const handleView = (product: ApiProduct) => navigate(`/product/${product.slug}`);
-  const handleBuyNow = (product: ApiProduct) =>
-    navigate("/checkout", { state: { isDirectBuy: true, product, quantity: 1 } });
 
   const heroFeatures = [
     {
@@ -477,7 +475,7 @@ export default function Home() {
             {isLoading
               ? [...Array(3)].map((_, i) => <ProductCardSkeleton key={i} />)
               : featuredProducts.map((product, i) => (
-                  <ProductCard key={product._id} product={product} index={i} onView={handleView} onBuyNow={handleBuyNow} />
+                  <ProductCard key={product._id} product={product} index={i} onView={handleView} />
                 ))}
           </div>
 

@@ -188,7 +188,7 @@ const faqs = [
   },
   {
     q: "Where can I buy Vedyara products?",
-    a: "Our products will soon be available exclusively on Amazon India.",
+    a: "You can shop directly on our website or on Amazon India — we're now live on Amazon! Search 'Vedyara' or visit our Amazon store.",
   },
   {
     q: "Are your products lab-tested and certified?",

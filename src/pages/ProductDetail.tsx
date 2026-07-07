@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  FiArrowLeft, 
-  FiCheck, 
-  FiPackage, 
-  FiHeart, 
-  FiShare2, 
-  FiShoppingBag,
+import {
+  FiArrowLeft,
+  FiCheck,
+  FiPackage,
+  FiHeart,
+  FiShare2,
+  FiExternalLink,
   FiShield,
   FiZap,
   FiTruck,
@@ -17,9 +17,9 @@ import {
 } from "react-icons/fi";
 import { useProduct } from "../api/productApi";
 import { products as localProducts, type Product } from "../data/products";
-import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { ProductDetailSkeleton } from "../components/Skeletons";
+import { AMAZON_STORE_URL } from "../config/environment";
 
 const badgeConfig: Record<string, { bg: string; color: string; emoji: string }> = {
   "Best Seller": { bg: "linear-gradient(135deg,#D4AF37,#e8c84a)", color: "#3E2F1C", emoji: "🏆" },
@@ -53,11 +53,8 @@ function StarRating({ rating }: { rating: number }) {
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string>("");
-  const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
-  const [isAdding, setIsAdding] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
 
@@ -97,16 +94,6 @@ export default function ProductDetail() {
 
   const liked = product ? isInWishlist(product.id as string) : false;
 
-  const handleBuyNow = () => {
-    if (!product) return;
-    navigate("/checkout", { 
-      state: { 
-        isDirectBuy: true, 
-        product, 
-        quantity 
-      } 
-    });
-  };
 
   useEffect(() => {
     if (product) {
@@ -369,43 +356,36 @@ export default function ProductDetail() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <motion.button
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  disabled={isAdding}
-                  onClick={async () => {
-                    if (product) {
-                      setIsAdding(true);
-                      await addToCart(product, quantity);
-                      setIsAdding(false);
-                    }
-                  }}
-                  className="flex-1 flex items-center justify-center gap-3 py-5 rounded-2xl font-bold text-lg transition-shadow hover:shadow-xl"
-                  style={{
-                    background: "#3E2F1C",
-                    color: "#fff",
-                    boxShadow: "0 10px 30px rgba(62,47,28,0.2)",
-                    opacity: isAdding ? 0.7 : 1
-                  }}
-                >
-                  <FiShoppingBag size={22} />
-                  {isAdding ? "Adding..." : "Add to Cart"}
-                </motion.button>
+              {/* Development phase notice */}
+              <div
+                className="rounded-2xl px-5 py-4 mb-2"
+                style={{ background: "rgba(62,47,28,0.05)", border: "1px solid rgba(62,47,28,0.1)" }}
+              >
+                <p className="text-sm font-semibold mb-1" style={{ color: "#3E2F1C" }}>
+                  🚧 Website in Development Phase
+                </p>
+                <p className="text-xs" style={{ color: "rgba(62,47,28,0.65)" }}>
+                  Direct orders are not yet available here. You can order this product on Amazon India right now.
+                </p>
+              </div>
 
-                <motion.button
+              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                <motion.a
+                  href={AMAZON_STORE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={handleBuyNow}
                   className="flex-1 flex items-center justify-center gap-3 py-5 rounded-2xl font-bold text-lg transition-shadow hover:shadow-xl"
                   style={{
-                    background: "linear-gradient(135deg, #D4AF37, #e8c84a)",
-                    color: "#3E2F1C",
-                    boxShadow: "0 10px 30px rgba(212,175,55,0.3)"
+                    background: "#FF9900",
+                    color: "#1a1a1a",
+                    boxShadow: "0 10px 30px rgba(255,153,0,0.3)"
                   }}
                 >
-                  Buy Now
-                </motion.button>
+                  <FiExternalLink size={22} />
+                  Order on Amazon India
+                </motion.a>
 
                 <motion.button
                   whileHover={{ scale: 1.05 }}
