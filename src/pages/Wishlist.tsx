@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiHeart, FiTrash2, FiExternalLink } from "react-icons/fi";
+import { FiHeart, FiTrash2, FiExternalLink, FiShoppingBag } from "react-icons/fi";
 import { useWishlist } from "../context/WishlistContext";
 import { WishlistCardSkeleton } from "../components/Skeletons";
 import { AMAZON_STORE_URL } from "../config/environment";
