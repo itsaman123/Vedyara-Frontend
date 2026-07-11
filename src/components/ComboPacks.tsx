@@ -11,7 +11,7 @@ const combos = [
     name: "Immunity Combo",
     tagline: "Your daily wellness ritual",
     emoji: "🛡️",
-    products: ["Pure Natural Honey", "Turmeric Powder"],
+    products: ["Vedyara Multi Flora Honey", "Turmeric Powder"],
     images: [Honey, Haldi],
     price: "₹549",
     original: "₹799",

@@ -20,6 +20,7 @@ import { products as localProducts, type Product } from "../data/products";
 import { useWishlist } from "../context/WishlistContext";
 import { ProductDetailSkeleton } from "../components/Skeletons";
 import { AMAZON_STORE_URL } from "../config/environment";
+import { useSEO } from "../utils/seo";
 
 const badgeConfig: Record<string, { bg: string; color: string; emoji: string }> = {
   "Best Seller": { bg: "linear-gradient(135deg,#D4AF37,#e8c84a)", color: "#3E2F1C", emoji: "🏆" },
@@ -94,6 +95,43 @@ export default function ProductDetail() {
 
   const liked = product ? isInWishlist(product.id as string) : false;
 
+  const isHoney = product?.category === "honey";
+  const productTitle = product
+    ? isHoney
+      ? `${product.name} | Vedyara Multi Flora Honey — Pure & Raw`
+      : `${product.name} | Vedyara Natural ${product.category === "spices" ? "Spices" : "Products"}`
+    : "Vedyara Products";
+  const productDesc = product
+    ? isHoney
+      ? `Buy ${product.name} from Vedyara. Pure multiflora honey — raw, unprocessed, lab-tested. ${product.shortDesc || ""}`
+      : `Buy ${product.name} from Vedyara. 100% natural, farm-sourced, lab-tested. ${product.shortDesc || ""}`
+    : "";
+
+  useSEO({
+    title: productTitle,
+    description: productDesc.slice(0, 160),
+    keywords: isHoney
+      ? `${product?.name ?? "vedyara"}, vedyara multi flora honey, multiflora honey, vedyara honey, pure honey, raw honey india`
+      : `${product?.name ?? "vedyara"}, vedyara natural products, pure spices india`,
+    canonical: id ? `https://vedyara.in/product/${id}` : undefined,
+    structuredData: product && isHoney ? {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: product.name,
+      alternateName: ["Vedyara Multi Flora Honey", "Vedyara Multiflora Honey"],
+      description: product.shortDesc || product.description,
+      brand: { "@type": "Brand", name: "Vedyara" },
+      image: product.images,
+      category: "Natural Honey",
+      offers: {
+        "@type": "Offer",
+        availability: "https://schema.org/InStock",
+        priceCurrency: "INR",
+        price: product.price.replace(/[^\d.]/g, ""),
+        url: AMAZON_STORE_URL,
+      },
+    } : undefined,
+  });
 
   useEffect(() => {
     if (product) {

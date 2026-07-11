@@ -31,16 +31,16 @@ export interface Category {
 export const products: Product[] = [
   {
     id: 3,
-    name: "Pure Natural Honey",
+    name: "Vedyara Multi Flora Honey",
     category: "honey",
     price: "₹699",
     originalPrice: "₹1799",
     badge: "Best Seller",
     image: Honey,
     images: [Honey, Haldi, Dhaniya],
-    shortDesc: "Raw, unprocessed honey from pristine Himalayan forests",
+    shortDesc: "Pure multi flora honey — raw, unprocessed, sourced from pristine wildflower forests",
     description:
-      "Our Pure Natural Honey is sourced directly from the Farm, where bees feed on flowers blooming at high altitudes. Completely raw and unprocessed, it retains all its natural enzymes, antioxidants, and healing properties. Cold-extracted without any heat treatment to preserve full nutritional value.",
+      "Vedyara Multi Flora Honey is sourced from the farm, where bees feed on a variety of wildflowers blooming across pristine forests. This pure multiflora honey is completely raw and unprocessed, retaining all its natural enzymes, antioxidants, and healing properties. Cold-extracted without any heat treatment to preserve full nutritional value.",
     benefits: [
       "Boosts Immunity",
       "Rich in Antioxidants",
@@ -56,16 +56,16 @@ export const products: Product[] = [
   },
   {
     id: 1,
-    name: "Pure Natural Honey",
+    name: "Vedyara Multi Flora Honey",
     category: "honey",
     price: "₹449",
     originalPrice: "₹899",
     badge: "Best Seller",
     image: Honey,
     images: [Honey, Haldi, Dhaniya],
-    shortDesc: "Raw, unprocessed honey from pristine Himalayan forests",
+    shortDesc: "Pure multi flora honey — raw, unprocessed, sourced from pristine wildflower forests",
     description:
-      "Our Pure Natural Honey is sourced directly from the Farm, where bees feed on flowers blooming at high altitudes. Completely raw and unprocessed, it retains all its natural enzymes, antioxidants, and healing properties. Cold-extracted without any heat treatment to preserve full nutritional value.",
+      "Vedyara Multi Flora Honey is sourced from the farm, where bees feed on a variety of wildflowers blooming across pristine forests. This pure multiflora honey is completely raw and unprocessed, retaining all its natural enzymes, antioxidants, and healing properties. Cold-extracted without any heat treatment to preserve full nutritional value.",
     benefits: [
       "Boosts Immunity",
       "Rich in Antioxidants",
@@ -140,7 +140,7 @@ export const testimonials = [
     rating: 5,
     review:
       "The Himalayan Honey is absolutely pure and delicious. You can taste the difference from store-bought honey immediately. My whole family loves it!",
-    product: "Pure Natural Honey",
+    product: "Vedyara Multi Flora Honey",
     date: "2 weeks ago",
   },
   {
@@ -173,7 +173,7 @@ export const testimonials = [
     rating: 5,
     review:
       "Really happy with the honey quality. My kids love having it with warm milk every night. Vedyara has earned a permanent spot in our kitchen.",
-    product: "Pure Natural Honey",
+    product: "Vedyara Multi Flora Honey",
     date: "1 week ago",
   },
 ];

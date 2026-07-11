@@ -11,6 +11,7 @@ import {
 } from "react-icons/fi";
 import { FaWhatsapp, FaInstagram } from "react-icons/fa";
 import { fadeUp, staggerContainer } from "../utils/animations";
+import { useSEO } from "../utils/seo";
 
 /* ═══════════════════════════════════════════════════════════
    DECORATIVE BLOB — static, no animation
@@ -204,6 +205,13 @@ const faqs = [
    CONTACT PAGE
 ═══════════════════════════════════════════════════════════ */
 export default function Contact() {
+  useSEO({
+    title: "Contact Vedyara | Questions About Multi Flora Honey & Natural Spices",
+    description: "Get in touch with Vedyara. Questions about our multi flora honey, turmeric powder, or coriander powder? We're happy to help.",
+    keywords: "contact vedyara, vedyara honey customer service, buy vedyara multi flora honey, vedyara support",
+    canonical: "https://vedyara.in/contact",
+  });
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",

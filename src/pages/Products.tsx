@@ -15,6 +15,7 @@ import HaldiImg from "../assets/haldi.jpeg";
 import DhaniyaImg from "../assets/dhaniya.jpeg";
 import { useWishlist } from "../context/WishlistContext";
 import { AMAZON_STORE_URL } from "../config/environment";
+import { useSEO } from "../utils/seo";
 
 /* ═══════════════════════════════════════════════════════════
    LIST ROW — premium list view
@@ -195,6 +196,13 @@ export default function Products() {
   const products = useMemo(() => data?.items ?? [], [data]);
   const totalCount = data?.pagination.total ?? 0;
 
+  useSEO({
+    title: "Buy Multi Flora Honey & Natural Spices Online | Vedyara Products",
+    description: "Shop Vedyara's full range — pure multi flora honey, turmeric powder & coriander powder. Farm-sourced, lab-tested. Order Vedyara multiflora honey on Amazon India.",
+    keywords: "vedyara multi flora honey price, buy multiflora honey online, vedyara honey shop, natural spices india, buy vedyara products",
+    canonical: "https://vedyara.in/products",
+  });
+
   const handleView = (product: ApiProduct) => navigate(`/product/${product.slug}`);
 
   const clearSearch = () => setSearchQuery("");
@@ -280,7 +288,7 @@ export default function Products() {
                 className="text-base mb-8"
                 style={{ color: "rgba(26,15,5,0.55)", lineHeight: 1.75, maxWidth: "440px" }}
               >
-                From Himalayan wildflower honey to aromatic spice powders — each product is
+                Pure Vedyara Multi Flora Honey and aromatic spice powders — each product is
                 farm-sourced, lab-tested, and free from preservatives.
               </motion.p>
 
@@ -331,7 +339,7 @@ export default function Products() {
                     boxShadow: "0 24px 60px rgba(212,175,55,0.25), 0 8px 24px rgba(0,0,0,0.08)",
                   }}
                 >
-                  <img src={HoneyImg} alt="Pure Natural Honey" className="w-full h-full object-contain p-6" />
+                  <img src={HoneyImg} alt="Vedyara Multi Flora Honey" className="w-full h-full object-contain p-6" />
                 </div>
                 <div
                   className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"

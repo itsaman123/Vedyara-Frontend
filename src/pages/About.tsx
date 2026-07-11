@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useSEO } from "../utils/seo";
 const FarmImage = "/farm-image.webp";
 const BeeFarm = "/bee-farm.webp";
 const HoneyBottle = "/honey-bottle.webp";
@@ -176,6 +177,13 @@ const milestones = [
    ABOUT PAGE
 ═══════════════════════════════════════════════════════════ */
 export default function About() {
+  useSEO({
+    title: "About Vedyara | Our Story | Pure Multi Flora Honey & Natural Spices",
+    description: "Learn about Vedyara — the brand behind India's pure multi flora honey, turmeric & coriander powder. Our mission: bring farm-fresh, lab-tested natural products to every home.",
+    keywords: "about vedyara, vedyara honey brand, vedyara multi flora honey brand, natural products india, pure honey brand india",
+    canonical: "https://vedyara.in/about",
+  });
+
   return (
     <main className="relative overflow-x-hidden bg-[#faf9f7]">
       {/* ════════════════════════════════════════════════════

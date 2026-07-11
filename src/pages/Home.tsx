@@ -27,6 +27,7 @@ import EducationalSection from "../components/EducationalSection";
 import ProductCard from "../components/ProductCard";
 import { fadeUp, staggerContainer } from "../utils/animations";
 import { ProductCardSkeleton } from "../components/Skeletons";
+import { useSEO } from "../utils/seo";
 
 
 /* ═══════════════════════════════════════════════════════════
@@ -210,6 +211,13 @@ function TestimonialsCarousel() {
 export default function Home() {
   const navigate = useNavigate();
 
+  useSEO({
+    title: "Vedyara | Buy Multi Flora Honey Online — Pure Natural Honey & Spices India",
+    description: "Buy Vedyara Multi Flora Honey online — pure, raw multiflora honey from pristine forests. Also find natural turmeric & coriander powder. 100% natural, lab-tested. Order on Amazon India.",
+    keywords: "vedyara multi flora honey, multi flora honey, vedyara multiflora honey, vedyara multi-flora honey, vedyara honey, buy honey online india, pure natural honey, raw multiflora honey",
+    canonical: "https://vedyara.in/",
+  });
+
   const { data, isLoading } = useProducts({ limit: 3 });
 
   const featuredProducts = useMemo(() => data?.items ?? [], [data]);
@@ -242,8 +250,8 @@ export default function Home() {
   const productBenefits = [
     {
       icon: "🍯",
-      name: "Honey",
-      tagline: "Liquid Gold",
+      name: "Multi Flora Honey",
+      tagline: "Pure & Raw",
       color: "from-amber-50 to-yellow-50",
       border: "border-amber-100",
       perks: ["Boosts Immunity", "Rich Antioxidants", "Natural Sweetener", "Aids Digestion"],
@@ -349,8 +357,8 @@ export default function Home() {
                 className="mb-10"
                 style={{ color: "rgba(15,10,5,0.58)", fontSize: "0.975rem", lineHeight: 1.7 }}
               >
-                Thoughtfully crafted products inspired by timeless
-                traditions and the purity of nature. Honey, Turmeric & Coriander — unprocessed, lab-tested, and pure.
+                Thoughtfully crafted products inspired by timeless traditions.
+                Pure Multi Flora Honey, Turmeric & Coriander Powder — raw, unprocessed, lab-tested.
               </motion.p>
 
               <motion.div
@@ -467,7 +475,7 @@ export default function Home() {
               Shop Our Products
             </motion.h2>
             <motion.p variants={fadeUp} custom={0.2} className="max-w-2xl mx-auto text-gray-500">
-              Pure Himalayan honey, stone-ground turmeric, and aromatic coriander — each product tells a story of purity.
+              Pure Vedyara Multi Flora Honey, stone-ground turmeric, and aromatic coriander — each product tells a story of purity.
             </motion.p>
           </motion.div>
 
