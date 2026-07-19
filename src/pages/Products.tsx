@@ -16,6 +16,7 @@ import DhaniyaImg from "../assets/dhaniya.jpeg";
 import { useWishlist } from "../context/WishlistContext";
 import { AMAZON_STORE_URL } from "../config/environment";
 import { useSEO } from "../utils/seo";
+import HoneycombScene from "../components/HoneycombScene";
 
 /* ═══════════════════════════════════════════════════════════
    LIST ROW — premium list view
@@ -224,12 +225,18 @@ export default function Products() {
         className="relative pt-28 pb-16 overflow-hidden"
         style={{ background: "linear-gradient(160deg, #fef9f3 0%, #f2ebe0 100%)" }}
       >
+        {/* Three.js honeycomb depth layer — very subtle on the light bg */}
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0, opacity: 0.22 }}>
+          <HoneycombScene />
+        </div>
+
         {/* Subtle dot grid */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-[0.035]"
+          className="absolute inset-0 pointer-events-none opacity-[0.03]"
           style={{
             backgroundImage: "radial-gradient(#D4AF37 1px, transparent 1px)",
             backgroundSize: "28px 28px",
+            zIndex: 1,
           }}
         />
 
@@ -428,6 +435,49 @@ export default function Products() {
           </svg>
         </div>
       </section>
+
+      {/* ════════════════════════════════════════════════════
+          QUALITY PROMISE STRIP
+      ════════════════════════════════════════════════════ */}
+      <div
+        className="bg-white"
+        style={{ borderBottom: "1px solid rgba(62,47,28,0.06)", borderTop: "1px solid rgba(212,175,55,0.1)" }}
+      >
+        <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12">
+          <div className="grid grid-cols-2 lg:grid-cols-4">
+            {[
+              { emoji: "🍯", title: "Raw & Unprocessed", desc: "Cold-extracted, enzymes preserved" },
+              { emoji: "🔬", title: "Lab Tested", desc: "Every batch verified for purity" },
+              { emoji: "🌿", title: "Zero Additives", desc: "No preservatives, no shortcuts" },
+              { emoji: "🚚", title: "Pan-India Delivery", desc: "Fast & secure via Amazon" },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.06, duration: 0.4 }}
+                className={`flex items-center gap-3.5 px-5 py-4 ${i < 3 ? "border-r" : ""} ${i >= 2 ? "hidden lg:flex" : ""}`}
+                style={{ borderColor: "rgba(62,47,28,0.06)" }}
+              >
+                <div
+                  className="w-11 h-11 flex items-center justify-center flex-shrink-0 text-xl"
+                  style={{
+                    clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                    background: "linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05))",
+                  }}
+                >
+                  {item.emoji}
+                </div>
+                <div>
+                  <p className="font-semibold text-sm" style={{ color: "#1a0f05" }}>{item.title}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(26,15,5,0.42)" }}>{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* ════════════════════════════════════════════════════
           STICKY FILTERS

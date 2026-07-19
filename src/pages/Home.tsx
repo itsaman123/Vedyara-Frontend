@@ -25,6 +25,8 @@ import ProductComparison from "../components/ProductComparison";
 import ComboPacks from "../components/ComboPacks";
 import EducationalSection from "../components/EducationalSection";
 import ProductCard from "../components/ProductCard";
+import HoneycombScene from "../components/HoneycombScene";
+import HoneyVideoCarousel from "../components/HoneyVideoCarousel";
 import { fadeUp, staggerContainer } from "../utils/animations";
 import { ProductCardSkeleton } from "../components/Skeletons";
 import { useSEO } from "../utils/seo";
@@ -33,16 +35,29 @@ import { useSEO } from "../utils/seo";
 /* ═══════════════════════════════════════════════════════════
    STATS COUNTER
 ═══════════════════════════════════════════════════════════ */
-const StatCounter = ({ value, label, index }: { value: string; label: string; index: number }) => {
+const StatCounter = ({ value, label, index, isDark = false }: { value: string; label: string; index: number; isDark?: boolean }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
 
   return (
-    <div ref={ref} className="text-center">
+    <div ref={ref} className="text-center relative group">
+      {/* Pulsing hex ring behind number */}
       <div
-        className="text-4xl md:text-5xl font-bold mb-2"
+        className="absolute left-1/2 -translate-x-1/2 top-0 pointer-events-none"
         style={{
-          background: "linear-gradient(135deg, #D4AF37, #6B8E23)",
+          width: 80, height: 80,
+          clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+          background: isDark
+            ? "radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 80%)"
+            : "radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 80%)",
+          opacity: isInView ? 1 : 0,
+          transition: `opacity 0.6s ease ${index * 0.1 + 0.3}s`,
+        }}
+      />
+      <div
+        className="text-4xl md:text-5xl font-bold mb-2 relative z-10"
+        style={{
+          background: "linear-gradient(135deg, #D4AF37, #c8a227, #e8c84a)",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
           backgroundClip: "text",
@@ -53,7 +68,12 @@ const StatCounter = ({ value, label, index }: { value: string; label: string; in
       >
         {value}
       </div>
-      <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">{label}</p>
+      <p
+        className="text-sm font-medium uppercase tracking-wider"
+        style={{ color: isDark ? "rgba(255,255,255,0.4)" : "rgba(62,47,28,0.5)" }}
+      >
+        {label}
+      </p>
     </div>
   );
 };
@@ -278,7 +298,7 @@ export default function Home() {
     <main className="relative overflow-x-hidden bg-[#faf9f7]">
 
       {/* ════════════════════════════════════════════════════
-          1. HERO SECTION
+          1. HERO SECTION — 3D Honeycomb Background
       ════════════════════════════════════════════════════ */}
       <section
         className="relative overflow-hidden"
@@ -295,57 +315,86 @@ export default function Home() {
           style={{ zIndex: 0, objectPosition: "60% center" }}
         />
 
+        {/* ── THREE.JS HONEYCOMB — sits between image and gradient ── */}
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1, opacity: 0.65 }}>
+          <HoneycombScene />
+        </div>
+
         {/* Desktop gradient — left-to-right cream fade (md+) */}
         <div
           className="absolute inset-0 pointer-events-none hidden md:block"
           style={{
             background:
-              "linear-gradient(to right, #F4EDE0 0%, #F4EDE0 22%, rgba(244,237,224,0.88) 36%, rgba(244,237,224,0.45) 52%, rgba(244,237,224,0.08) 68%, transparent 80%)",
-            zIndex: 1,
+              "linear-gradient(to right, #F4EDE0 0%, #F4EDE0 18%, rgba(244,237,224,0.92) 32%, rgba(244,237,224,0.55) 50%, rgba(244,237,224,0.12) 66%, transparent 80%)",
+            zIndex: 2,
           }}
         />
 
-        {/* Mobile gradient — covers the full text column so products don't bleed through */}
+        {/* Mobile gradient */}
         <div
           className="absolute inset-0 pointer-events-none md:hidden"
           style={{
             background:
-              "linear-gradient(to top, #F4EDE0 0%, #F4EDE0 65%, rgba(244,237,224,0.92) 78%, rgba(244,237,224,0.6) 88%, rgba(244,237,224,0.15) 95%, transparent 100%)",
-            zIndex: 1,
+              "linear-gradient(to top, #F4EDE0 0%, #F4EDE0 60%, rgba(244,237,224,0.92) 75%, rgba(244,237,224,0.6) 87%, rgba(244,237,224,0.15) 95%, transparent 100%)",
+            zIndex: 2,
           }}
         />
 
-        <div className="relative flex items-end md:items-center min-h-[92vh]" style={{ zIndex: 2 }}>
+        <div className="relative flex items-end md:items-center min-h-[92vh]" style={{ zIndex: 3 }}>
           <div className="w-full px-5 sm:px-8 lg:px-14 xl:px-20 pt-24 pb-44 md:pb-36">
-            <div className="max-w-[500px]">
+            <div className="max-w-[520px]">
 
+              {/* ── Hexagonal badge ── */}
               <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="inline-flex items-center gap-2 mb-7 px-4 py-2 rounded-full"
-                style={{
-                  background: "rgba(255,255,255,0.8)",
-                  border: "1px solid rgba(45,74,30,0.22)",
-                }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                className="inline-flex items-center gap-3 mb-8"
               >
-                <FaLeaf size={11} style={{ color: "#2D4A1E" }} />
+                {/* Hex icon */}
+                <div
+                  className="w-9 h-9 flex items-center justify-center text-base flex-shrink-0"
+                  style={{
+                    clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                    background: "linear-gradient(135deg, #D4AF37, #e8c84a)",
+                    boxShadow: "0 0 18px rgba(212,175,55,0.5)",
+                  }}
+                >
+                  🍯
+                </div>
                 <span
-                  className="font-semibold uppercase"
-                  style={{ color: "#2D4A1E", fontSize: "0.62rem", letterSpacing: "0.2em" }}
+                  className="font-bold uppercase tracking-widest text-[0.6rem]"
+                  style={{
+                    color: "#2D4A1E",
+                    background: "rgba(45,74,30,0.07)",
+                    padding: "5px 12px",
+                    borderRadius: 99,
+                    border: "1px solid rgba(45,74,30,0.18)",
+                  }}
                 >
                   Rooted in Ancient Wisdom
                 </span>
               </motion.div>
 
+              {/* ── H1 ── */}
               <motion.h1
                 initial={{ opacity: 0, y: 22 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
                 className="font-serif font-bold mb-5"
-                style={{ fontSize: "clamp(2.6rem, 5vw, 4.6rem)", lineHeight: 1.1 }}
+                style={{ fontSize: "clamp(2.6rem, 5vw, 4.8rem)", lineHeight: 1.08 }}
               >
-                <span style={{ color: "#0f0a05" }}>Pure Goodness</span>
+                <span style={{ color: "#0f0a05" }}>Pure </span>
+                <span
+                  style={{
+                    background: "linear-gradient(135deg, #b8961f 0%, #D4AF37 50%, #e8c84a 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  Honey
+                </span>
                 <br />
                 <span style={{ color: "#2D4A1E" }}>From Nature.</span>
               </motion.h1>
@@ -355,11 +404,20 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.55, ease: "easeOut" }}
                 className="mb-10"
-                style={{ color: "rgba(15,10,5,0.58)", fontSize: "0.975rem", lineHeight: 1.7 }}
+                style={{ color: "rgba(15,10,5,0.58)", fontSize: "0.975rem", lineHeight: 1.75, maxWidth: 420 }}
               >
                 Thoughtfully crafted products inspired by timeless traditions.
                 Pure Multi Flora Honey, Turmeric & Coriander Powder — raw, unprocessed, lab-tested.
               </motion.p>
+
+              {/* ── Honey drip accent bar ── */}
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.25, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                className="h-0.5 rounded-full mb-8 origin-left"
+                style={{ background: "linear-gradient(to right, #D4AF37, rgba(212,175,55,0.1))", width: 200 }}
+              />
 
               <motion.div
                 initial={{ opacity: 0, y: 14 }}
@@ -368,27 +426,37 @@ export default function Home() {
                 className="flex flex-wrap gap-4"
               >
                 <Link to="/products">
-                  <button
-                    className="flex items-center gap-2.5 rounded-xl font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97]"
-                    style={{ background: "#2D4A1E", padding: "14px 30px", fontSize: "0.875rem" }}
+                  <motion.button
+                    whileHover={{ scale: 1.03, y: -2 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="flex items-center gap-2.5 rounded-xl font-bold text-white"
+                    style={{
+                      background: "linear-gradient(135deg, #1a3010, #2D4A1E)",
+                      padding: "14px 30px",
+                      fontSize: "0.875rem",
+                      boxShadow: "0 8px 28px rgba(45,74,30,0.35)",
+                    }}
                   >
                     Shop Now
                     <FiArrowRight size={15} />
-                  </button>
+                  </motion.button>
                 </Link>
                 <Link to="/products">
-                  <button
-                    className="rounded-xl font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97]"
+                  <motion.button
+                    whileHover={{ scale: 1.03, y: -2 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="rounded-xl font-semibold transition-all duration-200"
                     style={{
-                      background: "#ffffff",
+                      background: "rgba(255,255,255,0.85)",
+                      backdropFilter: "blur(8px)",
                       color: "#0f0a05",
-                      border: "1.5px solid rgba(15,10,5,0.18)",
+                      border: "1.5px solid rgba(212,175,55,0.4)",
                       padding: "14px 30px",
                       fontSize: "0.875rem",
                     }}
                   >
                     Explore Products
-                  </button>
+                  </motion.button>
                 </Link>
               </motion.div>
 
@@ -397,12 +465,14 @@ export default function Home() {
         </div>
 
         {/* Feature strip */}
-        <div className="absolute bottom-0 left-0 right-0 px-5 sm:px-8 lg:px-14 xl:px-20" style={{ zIndex: 2 }}>
+        <div className="absolute bottom-0 left-0 right-0 px-5 sm:px-8 lg:px-14 xl:px-20" style={{ zIndex: 3 }}>
           <div
             className="rounded-t-3xl"
             style={{
-              background: "#ffffff",
+              background: "rgba(255,255,255,0.96)",
+              backdropFilter: "blur(12px)",
               boxShadow: "0 -4px 30px rgba(0,0,0,0.06)",
+              borderTop: "1px solid rgba(212,175,55,0.15)",
             }}
           >
             <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-stone-100">
@@ -415,10 +485,11 @@ export default function Home() {
                   className={`flex items-start gap-3 px-4 py-5 md:px-6 md:py-6 ${i >= 2 ? "hidden lg:flex" : ""}`}
                 >
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                    className="w-10 h-10 flex items-center justify-center flex-shrink-0 mt-0.5"
                     style={{
-                      border: "1.5px solid rgba(45,74,30,0.18)",
-                      background: "rgba(45,74,30,0.04)",
+                      clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                      background: "linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.08))",
+                      border: "1.5px solid rgba(212,175,55,0.2)",
                     }}
                   >
                     {f.icon}
@@ -440,17 +511,45 @@ export default function Home() {
       <TrustBanner />
 
       {/* ════════════════════════════════════════════════════
-          3. STATS SECTION
+          3. STATS SECTION — dark honeycomb theme
       ════════════════════════════════════════════════════ */}
-      <section className="relative py-16 bg-white overflow-hidden">
+      <section
+        className="relative py-20 overflow-hidden"
+        style={{ background: "linear-gradient(160deg, #1a0d04 0%, #0f0a05 60%, #130c04 100%)" }}
+      >
+        {/* CSS honeycomb grid overlay */}
         <div
-          className="absolute top-0 left-0 right-0 h-0.5"
-          style={{ background: "linear-gradient(to right, transparent, #D4AF37, #6B8E23, #D4AF37, transparent)" }}
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V16L28 0l28 16v34L28 66zm0 34L0 84V66l28 16 28-16v18L28 100z' fill='none' stroke='%23D4AF37' stroke-width='0.6'/%3E%3C/svg%3E")`,
+            backgroundSize: "56px 100px",
+            opacity: 0.06,
+          }}
         />
-        <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12">
+
+        {/* Radial amber glow */}
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          style={{
+            width: "90vw", height: "90vw",
+            background: "radial-gradient(ellipse, rgba(212,175,55,0.05) 0%, transparent 70%)",
+            borderRadius: "50%",
+          }}
+        />
+
+        {/* Gold line top */}
+        <div className="absolute top-0 left-0 right-0 h-px"
+          style={{ background: "linear-gradient(to right, transparent, rgba(212,175,55,0.5), rgba(107,142,35,0.3), rgba(212,175,55,0.5), transparent)" }}
+        />
+        {/* Gold line bottom */}
+        <div className="absolute bottom-0 left-0 right-0 h-px"
+          style={{ background: "linear-gradient(to right, transparent, rgba(212,175,55,0.2), transparent)" }}
+        />
+
+        <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 relative z-10">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             {stats.map((stat, i) => (
-              <StatCounter key={stat.id} value={stat.value} label={stat.label} index={i} />
+              <StatCounter key={stat.id} value={stat.value} label={stat.label} index={i} isDark />
             ))}
           </div>
         </div>
@@ -539,37 +638,80 @@ export default function Home() {
                 key={item.name}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                whileHover={{
+                  y: -10,
+                  scale: 1.02,
+                  rotateX: 3,
+                  rotateY: i === 0 ? -4 : i === 2 ? 4 : 0,
+                  boxShadow: "0 32px 64px rgba(0,0,0,0.10), 0 8px 24px rgba(212,175,55,0.14)",
+                }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, duration: 0.5, ease: "easeOut" }}
-                className={`relative p-8 rounded-3xl bg-gradient-to-br ${item.color} border ${item.border} group transition-all duration-300 hover:-translate-y-2 hover:shadow-xl`}
+                style={{ transformPerspective: 900 }}
+                className={`relative p-8 rounded-3xl bg-gradient-to-br ${item.color} border ${item.border} cursor-default`}
               >
-                <div className="text-4xl mb-4">{item.icon}</div>
-                <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "#2D4A1E" }}>
-                  {item.tagline}
-                </p>
-                <h3 className="font-serif font-bold text-xl mb-5" style={{ color: "#0f0a05" }}>
-                  {item.name}
-                </h3>
+                {/* Hex icon container */}
+                <div className="mb-5 flex items-center gap-3">
+                  <div
+                    className="w-14 h-14 flex items-center justify-center flex-shrink-0"
+                    style={{
+                      clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                      background: "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06))",
+                      border: "1.5px solid rgba(212,175,55,0.3)",
+                      fontSize: "1.75rem",
+                    }}
+                  >
+                    {item.icon}
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: "#2D4A1E" }}>
+                      {item.tagline}
+                    </p>
+                    <h3 className="font-serif font-bold text-lg leading-tight" style={{ color: "#0f0a05" }}>
+                      {item.name}
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Gold accent line */}
+                <div className="h-px mb-5" style={{ background: "linear-gradient(to right, rgba(212,175,55,0.3), transparent)" }} />
+
                 <ul className="space-y-2.5">
                   {item.perks.map((perk) => (
                     <li key={perk} className="flex items-center gap-2.5 text-sm" style={{ color: "rgba(15,10,5,0.65)" }}>
-                      <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                        style={{ background: "rgba(45,74,30,0.12)" }}>
-                        <span style={{ color: "#2D4A1E", fontSize: "0.6rem", fontWeight: 800 }}>✓</span>
+                      <div
+                        className="w-5 h-5 flex items-center justify-center flex-shrink-0"
+                        style={{
+                          clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                          background: "rgba(45,74,30,0.12)",
+                        }}
+                      >
+                        <span style={{ color: "#2D4A1E", fontSize: "0.55rem", fontWeight: 900 }}>✓</span>
                       </div>
                       {perk}
                     </li>
                   ))}
                 </ul>
+
                 <Link to="/products">
-                  <button
-                    className="mt-6 flex items-center gap-2 text-sm font-semibold transition-all duration-200 hover:gap-3"
+                  <motion.button
+                    whileHover={{ x: 4 }}
+                    className="mt-6 flex items-center gap-2 text-sm font-bold"
                     style={{ color: "#2D4A1E" }}
                   >
                     Shop {item.name}
                     <FiArrowRight size={14} />
-                  </button>
+                  </motion.button>
                 </Link>
+
+                {/* Subtle corner hex decoration */}
+                <div
+                  className="absolute bottom-5 right-5 w-10 h-10 pointer-events-none opacity-10"
+                  style={{
+                    clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                    background: "#D4AF37",
+                  }}
+                />
               </motion.div>
             ))}
           </div>
@@ -754,6 +896,11 @@ export default function Home() {
       </section>
 
       {/* ════════════════════════════════════════════════════
+          VIDEO CAROUSEL — Honey use-cases (9:16 portrait)
+      ════════════════════════════════════════════════════ */}
+      <HoneyVideoCarousel />
+
+      {/* ════════════════════════════════════════════════════
           EDUCATIONAL SECTION
       ════════════════════════════════════════════════════ */}
       <EducationalSection />
@@ -766,7 +913,30 @@ export default function Home() {
       {/* ════════════════════════════════════════════════════
           8. CTA SECTION
       ════════════════════════════════════════════════════ */}
-      <section className="relative py-24 overflow-hidden" style={{ background: "#F4EDE0" }}>
+      <section className="relative py-28 overflow-hidden" style={{ background: "linear-gradient(160deg, #1a0d04 0%, #0f0a05 60%, #130c04 100%)" }}>
+        {/* CSS honeycomb overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V16L28 0l28 16v34L28 66zm0 34L0 84V66l28 16 28-16v18L28 100z' fill='none' stroke='%23D4AF37' stroke-width='0.6'/%3E%3C/svg%3E")`,
+            backgroundSize: "56px 100px",
+            opacity: 0.06,
+          }}
+        />
+        {/* Radial gold glow */}
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          style={{
+            width: "80vw", height: "80vw",
+            background: "radial-gradient(circle, rgba(212,175,55,0.07) 0%, transparent 70%)",
+            borderRadius: "50%",
+          }}
+        />
+        {/* Top gold border */}
+        <div className="absolute top-0 left-0 right-0 h-px"
+          style={{ background: "linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)" }}
+        />
+
         <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 text-center relative z-10">
           <motion.div
             initial="hidden"
@@ -774,47 +944,96 @@ export default function Home() {
             viewport={{ once: true }}
             variants={staggerContainer}
           >
-            <motion.span variants={fadeUp} custom={0} className="inline-block text-xs font-semibold uppercase mb-4" style={{ color: "#2D4A1E", letterSpacing: "0.22em" }}>
-              Start Your Journey
-            </motion.span>
+            {/* Hex badge */}
+            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 mb-7">
+              <div
+                className="w-8 h-8 flex items-center justify-center"
+                style={{
+                  clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                  background: "linear-gradient(135deg, #D4AF37, #e8c84a)",
+                }}
+              >
+                <span style={{ fontSize: 14 }}>🌿</span>
+              </div>
+              <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#D4AF37" }}>
+                Start Your Journey
+              </span>
+            </motion.div>
 
             <motion.h2
               variants={fadeUp}
               custom={0.1}
-              className="font-serif font-bold mb-6 leading-tight"
-              style={{ fontSize: "clamp(2.2rem, 5vw, 3.8rem)", color: "#0f0a05" }}
+              className="font-serif font-bold mb-5 leading-tight"
+              style={{ fontSize: "clamp(2.2rem, 5vw, 3.8rem)", color: "#fff" }}
             >
-              Tradition. Purity.
-              <br />
-              <span style={{ color: "#2D4A1E" }}>Wellness.</span>
+              Tradition. Purity.{" "}
+              <span
+                style={{
+                  background: "linear-gradient(135deg, #D4AF37, #e8c84a)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                Wellness.
+              </span>
             </motion.h2>
 
-            <motion.p variants={fadeUp} custom={0.2} className="text-base mb-10 max-w-xl mx-auto" style={{ color: "rgba(15,10,5,0.55)", lineHeight: 1.7 }}>
+            <motion.p
+              variants={fadeUp}
+              custom={0.2}
+              className="text-base mb-10 max-w-xl mx-auto"
+              style={{ color: "rgba(255,255,255,0.5)", lineHeight: 1.75 }}
+            >
               Join 1000+ families who have made the switch to purer, healthier living with Vedyara.
             </motion.p>
 
+            {/* Drip accent */}
+            <motion.div
+              variants={fadeUp}
+              custom={0.25}
+              className="flex justify-center gap-2 mb-8"
+            >
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className="w-0.5 rounded-full"
+                  style={{ background: "linear-gradient(to bottom, #D4AF37, rgba(212,175,55,0))" }}
+                  animate={{ height: [10, 24, 10] }}
+                  transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.28, ease: "easeInOut" }}
+                />
+              ))}
+            </motion.div>
+
             <motion.div variants={fadeUp} custom={0.3} className="flex flex-wrap justify-center gap-4">
               <Link to="/products">
-                <button
-                  className="flex items-center gap-3 rounded-xl font-semibold text-sm text-white transition-all duration-150 hover:-translate-y-0.5 active:scale-95"
-                  style={{ background: "#2D4A1E", padding: "14px 32px" }}
+                <motion.button
+                  whileHover={{ scale: 1.04, y: -3 }}
+                  whileTap={{ scale: 0.96 }}
+                  className="flex items-center gap-3 rounded-xl font-bold text-sm"
+                  style={{
+                    background: "linear-gradient(135deg, #2D4A1E, #1a3010)",
+                    color: "#fff",
+                    padding: "15px 34px",
+                    boxShadow: "0 12px 36px rgba(45,74,30,0.5)",
+                  }}
                 >
                   <FiShoppingBag size={16} />
                   Explore Products
                   <FiArrowRight size={16} />
-                </button>
+                </motion.button>
               </Link>
             </motion.div>
 
-            <motion.div variants={fadeUp} custom={0.4} className="mt-12 flex flex-wrap justify-center gap-8">
+            <motion.div variants={fadeUp} custom={0.4} className="mt-14 flex flex-wrap justify-center gap-8">
               {[
                 { icon: "🛡️", text: "FSSAI Certified" },
-                { icon: <FaLeaf size={14} />, text: "100% Natural" },
-                { icon: <FiShield size={14} />, text: "Secure Checkout" },
-                { icon: <FiPackage size={14} />, text: "Pan-India Delivery" },
+                { icon: <FaLeaf size={13} />, text: "100% Natural" },
+                { icon: <FiShield size={13} />, text: "No Additives" },
+                { icon: <FiPackage size={13} />, text: "Pan-India Delivery" },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm" style={{ color: "rgba(15,10,5,0.5)" }}>
-                  <span style={{ color: "#2D4A1E" }}>{item.icon}</span>
+                <div key={i} className="flex items-center gap-2 text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>
+                  <span style={{ color: "#D4AF37" }}>{item.icon}</span>
                   <span>{item.text}</span>
                 </div>
               ))}
