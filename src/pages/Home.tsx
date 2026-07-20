@@ -257,6 +257,9 @@ export default function Home() {
 
   const featuredProducts = useMemo(() => data?.items ?? [], [data]);
 
+  const dripRef = useRef(null);
+  const dripInView = useInView(dripRef, { once: false, amount: 0.5 });
+
   const handleView = (product: ApiProduct) => navigate(`/product/${product.slug}`);
 
   const heroFeatures = [
@@ -1123,8 +1126,9 @@ export default function Home() {
               Join 1000+ families who have made the switch to purer, healthier living with Vedyara.
             </motion.p>
 
-            {/* Drip accent */}
+            {/* Drip accent — only animates while actually on screen */}
             <motion.div
+              ref={dripRef}
               variants={fadeUp}
               custom={0.25}
               className="flex justify-center gap-2 mb-8"
@@ -1134,8 +1138,8 @@ export default function Home() {
                   key={i}
                   className="w-0.5 rounded-full"
                   style={{ background: "linear-gradient(to bottom, #D4AF37, rgba(212,175,55,0))" }}
-                  animate={{ height: [10, 24, 10] }}
-                  transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.28, ease: "easeInOut" }}
+                  animate={dripInView ? { height: [10, 24, 10] } : { height: 10 }}
+                  transition={dripInView ? { repeat: Infinity, duration: 1.5, delay: i * 0.28, ease: "easeInOut" } : { duration: 0.2 }}
                 />
               ))}
             </motion.div>

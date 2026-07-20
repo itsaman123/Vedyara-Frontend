@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 
 const steps = [
   {
@@ -38,9 +39,117 @@ const steps = [
   },
 ];
 
-export default function FarmToHome() {
+type Step = (typeof steps)[number];
+
+/* ─────────────────────────────────────────────────────────────
+   Desktop step — reveals in sequence as scrollYProgress advances
+───────────────────────────────────────────────────────────── */
+function DesktopStep({
+  step,
+  index,
+  progress,
+}: {
+  step: Step;
+  index: number;
+  progress: MotionValue<number>;
+}) {
+  const start = (index / steps.length) * 0.85;
+  const end = start + 0.55 / steps.length;
+  const opacity = useTransform(progress, [start, end], [0, 1]);
+  const y = useTransform(progress, [start, end], [30, 0]);
+  const scale = useTransform(progress, [start, end], [0.85, 1]);
+  const glow = useTransform(progress, [start, end], [0, 1]);
+  const boxShadow = useTransform(glow, (v) => `0 0 ${24 * v}px ${step.accent}${Math.round(v * 0x22).toString(16).padStart(2, "0")}`);
+
   return (
-    <section className="relative py-24 overflow-hidden" style={{ background: "#0f1f08" }}>
+    <motion.div style={{ opacity, y, scale }} className="flex flex-col items-center text-center">
+      <motion.div
+        className="w-[104px] h-[104px] rounded-full flex flex-col items-center justify-center mb-6 relative"
+        style={{
+          background: "rgba(255,255,255,0.04)",
+          border: `2px solid ${step.accent}`,
+          boxShadow,
+        }}
+      >
+        <span style={{ fontSize: "2rem" }}>{step.icon}</span>
+        <span
+          style={{
+            fontSize: "0.6rem",
+            fontWeight: 800,
+            color: step.accent,
+            letterSpacing: "0.12em",
+            marginTop: "2px",
+          }}
+        >
+          {step.step}
+        </span>
+      </motion.div>
+
+      <h3 className="font-serif font-bold text-white text-base mb-2">{step.title}</h3>
+      <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
+        {step.desc}
+      </p>
+    </motion.div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Mobile step — same scroll-scrubbed reveal, vertical timeline
+───────────────────────────────────────────────────────────── */
+function MobileStep({
+  step,
+  index,
+  progress,
+}: {
+  step: Step;
+  index: number;
+  progress: MotionValue<number>;
+}) {
+  const start = (index / steps.length) * 0.9;
+  const end = start + 0.6 / steps.length;
+  const opacity = useTransform(progress, [start, end], [0, 1]);
+  const x = useTransform(progress, [start, end], [-24, 0]);
+
+  return (
+    <motion.div style={{ opacity, x }} className="relative flex items-start gap-5">
+      <div
+        className="absolute -left-10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+        style={{
+          background: "#0f1f08",
+          border: `2px solid ${step.accent}`,
+          top: "2px",
+        }}
+      >
+        <span style={{ fontSize: "0.95rem" }}>{step.icon}</span>
+      </div>
+
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <span style={{ fontSize: "0.6rem", color: step.accent, fontWeight: 800, letterSpacing: "0.14em" }}>
+            {step.step}
+          </span>
+          <h3 className="font-serif font-bold text-white text-base">{step.title}</h3>
+        </div>
+        <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
+          {step.desc}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+export default function FarmToHome() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start 0.8", "end 0.4"],
+  });
+
+  const lineScaleX = useTransform(scrollYProgress, [0.05, 0.85], [0, 1]);
+  const lineScaleY = useTransform(scrollYProgress, [0.05, 0.95], [0, 1]);
+
+  return (
+    <section ref={sectionRef} className="relative py-24 overflow-hidden" style={{ background: "#0f1f08" }}>
       {/* Subtle grain texture overlay */}
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.03]"
@@ -77,104 +186,44 @@ export default function FarmToHome() {
           </p>
         </motion.div>
 
-        {/* Desktop: horizontal timeline */}
+        {/* Desktop: horizontal timeline, scroll-scrubbed */}
         <div className="hidden lg:block relative">
-          {/* Connecting line */}
+          {/* Connecting line — draws in as you scroll through the section */}
           <div className="absolute top-[52px] left-0 right-0 flex items-center px-[10%]" style={{ zIndex: 0 }}>
             <motion.div
               className="h-px flex-1"
-              style={{ background: "linear-gradient(to right, #D4AF37, #6B8E23, #D4AF37)" }}
-              initial={{ scaleX: 0, transformOrigin: "left" }}
-              whileInView={{ scaleX: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
+              style={{
+                background: "linear-gradient(to right, #D4AF37, #6B8E23, #D4AF37)",
+                scaleX: lineScaleX,
+                transformOrigin: "left",
+              }}
             />
           </div>
 
           <div className="grid grid-cols-5 gap-4 relative z-10">
             {steps.map((step, i) => (
-              <motion.div
-                key={step.step}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12, duration: 0.5, ease: "easeOut" }}
-                className="flex flex-col items-center text-center"
-              >
-                {/* Icon circle */}
-                <div
-                  className="w-[104px] h-[104px] rounded-full flex flex-col items-center justify-center mb-6 relative"
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: `2px solid ${step.accent}`,
-                    boxShadow: `0 0 24px ${step.accent}22`,
-                  }}
-                >
-                  <span style={{ fontSize: "2rem" }}>{step.icon}</span>
-                  <span
-                    style={{
-                      fontSize: "0.6rem",
-                      fontWeight: 800,
-                      color: step.accent,
-                      letterSpacing: "0.12em",
-                      marginTop: "2px",
-                    }}
-                  >
-                    {step.step}
-                  </span>
-                </div>
-
-                <h3 className="font-serif font-bold text-white text-base mb-2">{step.title}</h3>
-                <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
-                  {step.desc}
-                </p>
-              </motion.div>
+              <DesktopStep key={step.step} step={step} index={i} progress={scrollYProgress} />
             ))}
           </div>
         </div>
 
-        {/* Mobile: vertical timeline */}
+        {/* Mobile: vertical timeline, scroll-scrubbed */}
         <div className="lg:hidden relative pl-10">
-          {/* Vertical line */}
-          <div
-            className="absolute left-[20px] top-0 bottom-0 w-px"
-            style={{ background: "linear-gradient(to bottom, #D4AF37, #6B8E23, #D4AF37)" }}
-          />
+          {/* Vertical line — grows downward as you scroll */}
+          <div className="absolute left-[20px] top-0 bottom-0 w-px overflow-hidden">
+            <motion.div
+              className="w-full h-full"
+              style={{
+                background: "linear-gradient(to bottom, #D4AF37, #6B8E23, #D4AF37)",
+                scaleY: lineScaleY,
+                transformOrigin: "top",
+              }}
+            />
+          </div>
 
           <div className="flex flex-col gap-10">
             {steps.map((step, i) => (
-              <motion.div
-                key={step.step}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.45, ease: "easeOut" }}
-                className="relative flex items-start gap-5"
-              >
-                {/* Dot on line */}
-                <div
-                  className="absolute -left-10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{
-                    background: "#0f1f08",
-                    border: `2px solid ${step.accent}`,
-                    top: "2px",
-                  }}
-                >
-                  <span style={{ fontSize: "0.95rem" }}>{step.icon}</span>
-                </div>
-
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span style={{ fontSize: "0.6rem", color: step.accent, fontWeight: 800, letterSpacing: "0.14em" }}>
-                      {step.step}
-                    </span>
-                    <h3 className="font-serif font-bold text-white text-base">{step.title}</h3>
-                  </div>
-                  <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
-                    {step.desc}
-                  </p>
-                </div>
-              </motion.div>
+              <MobileStep key={step.step} step={step} index={i} progress={scrollYProgress} />
             ))}
           </div>
         </div>

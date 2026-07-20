@@ -2,13 +2,10 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FiArrowLeft,
   FiCheck,
-  FiPackage,
   FiHeart,
   FiShare2,
   FiExternalLink,
-  FiShield,
   FiChevronDown,
   FiZoomIn,
 } from "react-icons/fi";
@@ -256,7 +253,7 @@ export default function ProductDetail() {
     : null;
 
   const badge  = product.badge ? (badgeConfig[product.badge] ?? badgeConfig["Natural"]) : null;
-  const images = product.images?.length > 0 ? product.images : [product.image];
+  const images = product.images && product.images.length > 0 ? product.images : [product.image];
   const selectedImage = images[selectedIdx] ?? images[0];
 
   /* ─────────────────── JSX ─────────────────── */

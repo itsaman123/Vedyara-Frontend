@@ -38,6 +38,8 @@ const AdminProducts   = lazy(() => import("./admin/pages/AdminProducts"));
 const AdminAddProduct = lazy(() => import("./admin/pages/AdminAddProduct"));
 const AdminInventory  = lazy(() => import("./admin/pages/AdminInventory"));
 const AdminOrders     = lazy(() => import("./admin/pages/AdminOrders"));
+const AdminVideos     = lazy(() => import("./admin/pages/AdminVideos"));
+const AdminAddVideo   = lazy(() => import("./admin/pages/AdminAddVideo"));
 
 /* ── Minimal skeleton shown during lazy-load ── */
 function PageSkeleton() {
@@ -181,6 +183,8 @@ function AppShell() {
             <Route path="add-product" element={<AdminAddProduct />} />
             <Route path="inventory" element={<AdminInventory />} />
             <Route path="orders"    element={<AdminOrders />} />
+            <Route path="videos"    element={<AdminVideos />} />
+            <Route path="add-video" element={<AdminAddVideo />} />
           </Route>
         </Routes>
       </Suspense>

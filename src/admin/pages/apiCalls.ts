@@ -121,7 +121,7 @@ export const clearAdminToken = () => {
   localStorage.removeItem(ADMIN_TOKEN_KEY);
 };
 
-const buildUrl = (path: string, params?: Record<string, unknown>) => {
+export const buildUrl = (path: string, params?: Record<string, unknown>) => {
   const url = new URL(`${API_BASE_URL}${path}`);
 
   Object.entries(params ?? {}).forEach(([key, value]) => {
@@ -133,7 +133,7 @@ const buildUrl = (path: string, params?: Record<string, unknown>) => {
   return url.toString();
 };
 
-async function apiRequest<T>(
+export async function apiRequest<T>(
   path: string,
   options: RequestInit = {},
   params?: Record<string, unknown>,

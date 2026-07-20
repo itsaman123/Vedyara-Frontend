@@ -23,6 +23,15 @@ export function ProductCardSkeleton() {
   );
 }
 
+/* ── Honey Video Card Skeleton ── */
+export function HoneyVideoCardSkeleton() {
+  return (
+    <div className="w-full h-full rounded-3xl overflow-hidden">
+      <Skeleton height="100%" borderRadius={0} baseColor="#241708" highlightColor="#3a2610" />
+    </div>
+  );
+}
+
 /* ── Product List Row Skeleton ── */
 export function ProductListRowSkeleton() {
   return (

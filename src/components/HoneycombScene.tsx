@@ -108,8 +108,8 @@ export default function HoneycombScene() {
     };
     window.addEventListener("mousemove", onMouse, { passive: true });
 
-    /* ── Animation loop ── */
-    let raf: number;
+    /* ── Animation loop — paused while the scene is scrolled off-screen ── */
+    let raf: number | undefined;
     const clock = new THREE.Clock();
 
     const tick = () => {
@@ -135,7 +135,22 @@ export default function HoneycombScene() {
 
       renderer.render(scene, camera);
     };
-    tick();
+
+    const startTick = () => {
+      if (raf !== undefined) return;
+      tick();
+    };
+    const stopTick = () => {
+      if (raf === undefined) return;
+      cancelAnimationFrame(raf);
+      raf = undefined;
+    };
+
+    const io = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? startTick() : stopTick()),
+      { threshold: 0 }
+    );
+    io.observe(mount);
 
     /* ── Resize ── */
     const onResize = () => {
@@ -148,7 +163,8 @@ export default function HoneycombScene() {
     ro.observe(mount);
 
     return () => {
-      cancelAnimationFrame(raf);
+      stopTick();
+      io.disconnect();
       window.removeEventListener("mousemove", onMouse);
       ro.disconnect();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
