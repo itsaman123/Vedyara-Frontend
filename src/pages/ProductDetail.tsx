@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -10,6 +10,7 @@ import {
   FiExternalLink,
   FiShield,
   FiChevronDown,
+  FiZoomIn,
 } from "react-icons/fi";
 import { useProduct } from "../api/productApi";
 import { products as localProducts, type Product } from "../data/products";
@@ -137,7 +138,18 @@ function AccordionItem({
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [zoom, setZoom] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const imgWrapRef = useRef<HTMLDivElement>(null);
   const { toggleWishlist, isInWishlist } = useWishlist();
+
+  function handleImageMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = imgWrapRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomPos({ x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) });
+  }
 
   const localProduct = useMemo(
     () => localProducts.find((p) => String(p.id) === id),
@@ -276,11 +288,48 @@ export default function ProductDetail() {
           {/* ══════════════════════════════════════════
               LEFT — Image Gallery
           ══════════════════════════════════════════ */}
-          <div className="lg:w-[52%] flex flex-col gap-4">
+          <div className="lg:w-[52%] lg:max-w-[580px] flex flex-col gap-4">
+
+            <div className="flex gap-3 sm:gap-4">
+
+            {/* Vertical thumbnail rail (Amazon-style, desktop only) */}
+            {images.length > 1 && (
+              <div
+                className="hidden sm:flex flex-col gap-2.5 flex-shrink-0 w-[64px] max-h-[460px] overflow-y-auto"
+                style={{ scrollbarWidth: "none" }}
+              >
+                {images.map((img, idx) => (
+                  <motion.button
+                    key={idx}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.94 }}
+                    onClick={() => setSelectedIdx(idx)}
+                    className="flex-shrink-0 w-[64px] h-[64px] rounded-xl overflow-hidden p-1.5 border-2 transition-all duration-200"
+                    style={{
+                      background: "rgba(62,47,28,0.03)",
+                      borderColor: selectedIdx === idx ? "#D4AF37" : "transparent",
+                      boxShadow: selectedIdx === idx
+                        ? "0 0 0 3px rgba(212,175,55,0.18), 0 6px 18px rgba(212,175,55,0.18)"
+                        : "0 1px 6px rgba(62,47,28,0.07)",
+                    }}
+                  >
+                    <img
+                      src={img}
+                      alt={`View ${idx + 1}`}
+                      className="w-full h-full object-contain"
+                    />
+                  </motion.button>
+                ))}
+              </div>
+            )}
 
             {/* Main image */}
             <div
-              className="relative rounded-3xl overflow-hidden aspect-square"
+              ref={imgWrapRef}
+              onMouseEnter={() => setZoom(true)}
+              onMouseLeave={() => setZoom(false)}
+              onMouseMove={handleImageMouseMove}
+              className="relative flex-1 min-w-0 rounded-3xl overflow-hidden aspect-square"
               style={{
                 background: "linear-gradient(145deg, #fefcf7 0%, #f8f0e3 55%, #f0e4cc 100%)",
                 boxShadow: "0 4px 40px rgba(62,47,28,0.07)",
@@ -348,7 +397,7 @@ export default function ProductDetail() {
                   key={selectedImage}
                   src={selectedImage}
                   alt={product.name}
-                  className="absolute inset-0 w-full h-full object-contain p-10 z-10"
+                  className="absolute inset-0 w-full h-full object-contain p-8 z-10"
                   style={{ filter: "drop-shadow(0 20px 44px rgba(62,47,28,0.16))" }}
                   initial={{ opacity: 0, scale: 0.9, y: 14 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -357,33 +406,34 @@ export default function ProductDetail() {
                 />
               </AnimatePresence>
 
-              {/* Best Seller / badge */}
-              {badge && (
-                <div
-                  className="absolute top-5 left-5 z-20 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold"
-                  style={{
-                    background: badge.bg,
-                    color: badge.color,
-                    boxShadow: "0 6px 18px rgba(0,0,0,0.14)",
-                  }}
-                >
-                  <span>{badge.emoji}</span>
-                  <span>{product.badge}</span>
-                </div>
-              )}
+              {/* Best Seller + discount badges, stacked top-left */}
+              <div className="absolute top-5 left-5 z-20 flex flex-col items-start gap-2">
+                {badge && (
+                  <div
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold"
+                    style={{
+                      background: badge.bg,
+                      color: badge.color,
+                      boxShadow: "0 6px 18px rgba(0,0,0,0.14)",
+                    }}
+                  >
+                    <span>{badge.emoji}</span>
+                    <span>{product.badge}</span>
+                  </div>
+                )}
 
-              {/* Discount badge */}
-              {discount && (
-                <div
-                  className="absolute bottom-5 left-5 z-20 px-3 py-1.5 rounded-full text-xs font-bold text-white"
-                  style={{
-                    background: "linear-gradient(135deg, #6B8E23, #7fa828)",
-                    boxShadow: "0 4px 12px rgba(107,142,35,0.35)",
-                  }}
-                >
-                  {discount}% OFF
-                </div>
-              )}
+                {discount && (
+                  <div
+                    className="px-3 py-1.5 rounded-full text-xs font-bold text-white"
+                    style={{
+                      background: "linear-gradient(135deg, #6B8E23, #7fa828)",
+                      boxShadow: "0 4px 12px rgba(107,142,35,0.35)",
+                    }}
+                  >
+                    {discount}% OFF
+                  </div>
+                )}
+              </div>
 
               {/* Wishlist */}
               <button
@@ -398,21 +448,65 @@ export default function ProductDetail() {
               >
                 <FiHeart size={18} fill={liked ? "#fff" : "transparent"} />
               </button>
-            </div>
 
-            {/* Thumbnail strip + counter */}
-            <div className="flex items-center gap-3">
+              {/* Zoom overlay (desktop hover) */}
+              {zoom && (
+                <div
+                  className="absolute inset-0 z-30 hidden lg:block"
+                  style={{
+                    backgroundImage: `url(${selectedImage})`,
+                    backgroundRepeat: "no-repeat",
+                    backgroundSize: "210%",
+                    backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
+                    backgroundColor: "#fefcf7",
+                  }}
+                />
+              )}
+
+              {/* Zoom hint */}
+              {images.length > 0 && (
+                <div
+                  className="hidden lg:flex absolute bottom-4 right-4 z-20 items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[10px] font-semibold pointer-events-none transition-opacity duration-200"
+                  style={{
+                    background: "rgba(255,255,255,0.92)",
+                    color: "rgba(62,47,28,0.55)",
+                    opacity: zoom ? 0 : 1,
+                  }}
+                >
+                  <FiZoomIn size={12} /> Hover to zoom
+                </div>
+              )}
+
+              {/* Image counter */}
+              {images.length > 1 && (
+                <div
+                  className="absolute bottom-4 left-4 z-20 font-mono text-[11px] font-semibold px-2.5 py-1.5 rounded-full"
+                  style={{
+                    background: "rgba(255,255,255,0.92)",
+                    color: "rgba(62,47,28,0.55)",
+                  }}
+                >
+                  {selectedIdx + 1}&nbsp;/&nbsp;{images.length}
+                </div>
+              )}
+            </div>
+            {/* end main image */}
+
+            </div>
+            {/* end image row */}
+
+            {/* Thumbnail strip (mobile only) */}
+            {images.length > 1 && (
               <div
-                className="flex gap-2.5 overflow-x-auto flex-1"
+                className="flex sm:hidden gap-2.5 overflow-x-auto"
                 style={{ scrollbarWidth: "none" }}
               >
                 {images.map((img, idx) => (
                   <motion.button
                     key={idx}
-                    whileHover={{ y: -3, scale: 1.04 }}
                     whileTap={{ scale: 0.94 }}
                     onClick={() => setSelectedIdx(idx)}
-                    className="flex-shrink-0 w-[72px] h-[72px] sm:w-20 sm:h-20 rounded-2xl overflow-hidden p-2 border-2 transition-all duration-200"
+                    className="flex-shrink-0 w-[64px] h-[64px] rounded-xl overflow-hidden p-1.5 border-2 transition-all duration-200"
                     style={{
                       background: "rgba(62,47,28,0.03)",
                       borderColor: selectedIdx === idx ? "#D4AF37" : "transparent",
@@ -429,20 +523,7 @@ export default function ProductDetail() {
                   </motion.button>
                 ))}
               </div>
-
-              {/* Image counter */}
-              {images.length > 1 && (
-                <div
-                  className="flex-shrink-0 font-mono text-xs font-semibold px-3 py-1.5 rounded-full"
-                  style={{
-                    background: "rgba(62,47,28,0.05)",
-                    color: "rgba(62,47,28,0.45)",
-                  }}
-                >
-                  {selectedIdx + 1}&nbsp;/&nbsp;{images.length}
-                </div>
-              )}
-            </div>
+            )}
 
             {/* Inline trust pills */}
             <div className="flex flex-wrap gap-2">
@@ -500,7 +581,7 @@ export default function ProductDetail() {
               {/* Product name */}
               <h1
                 className="font-serif font-bold leading-tight mb-4"
-                style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", color: "#1a0f05" }}
+                style={{ fontSize: "clamp(1.6rem, 2.8vw, 2.35rem)", color: "#1a0f05" }}
               >
                 {product.name}
               </h1>
@@ -530,7 +611,7 @@ export default function ProductDetail() {
                 <span
                   className="font-serif font-bold"
                   style={{
-                    fontSize: "2.8rem",
+                    fontSize: "2.25rem",
                     background: "linear-gradient(135deg, #b8961f, #D4AF37, #c89f20)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
@@ -798,6 +879,39 @@ export default function ProductDetail() {
 
         </div>
       </div>
+
+      {/* ══════════════════════════════════════════
+          A+ CONTENT — Brand Story Gallery
+      ══════════════════════════════════════════ */}
+      {images.length > 1 && (
+        <div style={{ background: "#F8F5F0" }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="text-center mb-10">
+              <span className="section-tag">From Vedyara</span>
+              <h2 className="section-heading-center">A Closer Look</h2>
+            </div>
+            <div className="max-w-3xl mx-auto flex flex-col gap-6">
+              {images.map((img, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="rounded-3xl overflow-hidden"
+                  style={{ boxShadow: "0 4px 30px rgba(62,47,28,0.08)" }}
+                >
+                  <img
+                    src={img}
+                    alt={`${product.name} — detail ${idx + 1}`}
+                    className="w-full h-auto object-cover"
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

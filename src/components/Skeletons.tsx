@@ -4,21 +4,19 @@ import "react-loading-skeleton/dist/skeleton.css";
 /* ── Product Card Skeleton (grid view) ── */
 export function ProductCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "0 2px 20px rgba(62,47,28,0.08)" }}>
-      <Skeleton height={260} borderRadius={0} />
-      <div className="px-5 pt-4 pb-5">
-        <Skeleton width={80} height={11} className="mb-1" />
-        <Skeleton height={20} className="mb-1" />
-        <Skeleton count={2} height={13} />
-        <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+    <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 2px 20px rgba(62,47,28,0.08)" }}>
+      <div className="aspect-[4/3]">
+        <Skeleton height="100%" borderRadius={0} />
+      </div>
+      <div className="px-4 pt-3 pb-3.5">
+        <Skeleton width={70} height={9} className="mb-1.5" />
+        <Skeleton height={17} className="mb-2" />
+        <div className="pt-2.5 border-t border-gray-100 flex items-center justify-between">
           <div>
-            <Skeleton width={60} height={22} />
-            <Skeleton width={40} height={12} className="mt-0.5" />
+            <Skeleton width={50} height={18} />
+            <Skeleton width={36} height={10} className="mt-0.5" />
           </div>
-          <div className="flex items-center gap-2">
-            <Skeleton width={72} height={36} borderRadius={12} />
-            <Skeleton width={36} height={36} borderRadius={12} />
-          </div>
+          <Skeleton width={56} height={32} borderRadius={12} />
         </div>
       </div>
     </div>

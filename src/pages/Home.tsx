@@ -32,6 +32,18 @@ import { ProductCardSkeleton } from "../components/Skeletons";
 import { useSEO } from "../utils/seo";
 
 
+/* ─────────────────────────────────────────────────────────────
+   OUR PROMISE — static data (6 items, HoneyVeda-style)
+───────────────────────────────────────────────────────────── */
+const ourPromises = [
+  { icon: "🚫", title: "No Heating",        desc: "Cold-extracted — raw enzymes fully intact" },
+  { icon: "🐝", title: "Bee-Friendly",      desc: "Ethical, sustainable beekeeping practices" },
+  { icon: "🌿", title: "Zero Additives",    desc: "Pure honey, nothing added or removed" },
+  { icon: "🔬", title: "Lab Tested",        desc: "NABL-certified purity check every batch" },
+  { icon: "🌾", title: "Forest Sourced",    desc: "Directly from pristine Indian forests" },
+  { icon: "♻️", title: "Eco Packaging",     desc: "Minimal footprint, sustainable materials" },
+];
+
 /* ═══════════════════════════════════════════════════════════
    STATS COUNTER
 ═══════════════════════════════════════════════════════════ */
@@ -163,11 +175,14 @@ function TestimonialsCarousel() {
         >
           <div>
             <motion.span variants={fadeUp} custom={0} className="inline-block text-sm font-semibold text-amber-600 uppercase tracking-widest mb-3">
-              Customer Love
+              Our Community
             </motion.span>
             <motion.h2 variants={fadeUp} custom={0.1} className="font-serif font-bold text-brand-brown" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-              What Our Customers Say
+              Loved by 1,000+ Families
             </motion.h2>
+            <motion.p variants={fadeUp} custom={0.2} className="mt-2 text-sm" style={{ color: "rgba(62,47,28,0.55)" }}>
+              from verified reviews on Amazon India
+            </motion.p>
           </div>
           {/* Nav arrows */}
           <div className="hidden md:flex gap-3">
@@ -464,6 +479,47 @@ export default function Home() {
           </div>
         </div>
 
+        {/* ── Floating testimonial card — desktop only ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 28, scale: 0.92 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.9, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute hidden lg:block"
+          style={{ bottom: "120px", right: "clamp(2rem, 8vw, 5rem)", zIndex: 3, width: "272px" }}
+        >
+          <div
+            className="rounded-2xl px-5 py-4"
+            style={{
+              background: "rgba(255,255,255,0.9)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              boxShadow: "0 20px 60px rgba(62,47,28,0.13), 0 4px 18px rgba(0,0,0,0.08)",
+              border: "1px solid rgba(212,175,55,0.22)",
+            }}
+          >
+            <div className="flex gap-0.5 mb-2.5">
+              {[...Array(5)].map((_, i) => (
+                <span key={i} style={{ color: "#D4AF37", fontSize: "13px" }}>★</span>
+              ))}
+            </div>
+            <p className="text-sm leading-relaxed italic mb-3" style={{ color: "rgba(62,47,28,0.72)" }}>
+              "Best raw honey I've ever had. You can literally smell the forest in every spoon."
+            </p>
+            <div className="flex items-center gap-2.5">
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0"
+                style={{ background: "linear-gradient(135deg, #D4AF37, #e8c84a)", color: "#3E2F1C" }}
+              >
+                P
+              </div>
+              <div>
+                <p className="text-xs font-bold" style={{ color: "#3E2F1C" }}>Priya S.</p>
+                <p className="text-[10px]" style={{ color: "rgba(62,47,28,0.42)" }}>Bangalore · Verified Buyer</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Feature strip */}
         <div className="absolute bottom-0 left-0 right-0 px-5 sm:px-8 lg:px-14 xl:px-20" style={{ zIndex: 3 }}>
           <div
@@ -511,6 +567,63 @@ export default function Home() {
       <TrustBanner />
 
       {/* ════════════════════════════════════════════════════
+          OUR PROMISE — 6-icon section
+      ════════════════════════════════════════════════════ */}
+      <section className="py-16 bg-white">
+        <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="text-center mb-12"
+          >
+            <span
+              className="inline-block text-xs font-bold uppercase tracking-widest mb-3"
+              style={{ color: "#6B8E23", letterSpacing: "0.22em" }}
+            >
+              Our Commitment
+            </span>
+            <h2
+              className="font-serif font-bold"
+              style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)", color: "#0f0a05" }}
+            >
+              The Vedyara Standard
+            </h2>
+          </motion.div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 lg:gap-4">
+            {ourPromises.map((p, i) => (
+              <motion.div
+                key={p.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.07, duration: 0.45, ease: "easeOut" }}
+                whileHover={{ y: -5 }}
+                className="flex flex-col items-center text-center gap-3"
+              >
+                <div
+                  className="w-16 h-16 flex items-center justify-center text-2xl"
+                  style={{
+                    clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                    background: "linear-gradient(145deg, rgba(212,175,55,0.13), rgba(212,175,55,0.04))",
+                    border: "1.5px solid rgba(212,175,55,0.2)",
+                  }}
+                >
+                  {p.icon}
+                </div>
+                <div>
+                  <p className="text-sm font-bold mb-0.5" style={{ color: "#1a0f05" }}>{p.title}</p>
+                  <p className="text-[11px] leading-relaxed" style={{ color: "rgba(62,47,28,0.48)" }}>{p.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════════
           3. STATS SECTION — dark honeycomb theme
       ════════════════════════════════════════════════════ */}
       <section
@@ -547,6 +660,28 @@ export default function Home() {
         />
 
         <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 relative z-10">
+          {/* Section heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-14"
+          >
+            <span
+              className="inline-block text-xs font-bold uppercase tracking-widest mb-3"
+              style={{ color: "#D4AF37", letterSpacing: "0.22em" }}
+            >
+              Our Impact
+            </span>
+            <h2
+              className="font-serif font-bold text-white"
+              style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)" }}
+            >
+              Numbers That Matter
+            </h2>
+          </motion.div>
+
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             {stats.map((stat, i) => (
               <StatCounter key={stat.id} value={stat.value} label={stat.label} index={i} isDark />
