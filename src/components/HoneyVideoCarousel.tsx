@@ -320,8 +320,17 @@ export default function HoneyVideoCarousel() {
           </p>
         </motion.div>
 
-        {/* Carousel track — single slide visible at a time */}
-        <div className="relative max-w-[380px] sm:max-w-[420px] mx-auto">
+        {/* Carousel track — single slide visible at a time. Sized off height
+            (capped so it always fits the screen) with width derived from the
+            9:16 ratio, instead of sizing off width and letting height run tall. */}
+        <div
+          className="relative mx-auto"
+          style={{
+            height: "min(58vh, 560px)",
+            width: "calc(min(58vh, 560px) * 9 / 16)",
+            maxWidth: "100%",
+          }}
+        >
           {total > 1 && (
             <>
               <button
@@ -353,13 +362,11 @@ export default function HoneyVideoCarousel() {
           )}
 
           {isLoading ? (
-            <div style={{ aspectRatio: "9 / 16" }}>
-              <HoneyVideoCardSkeleton />
-            </div>
+            <HoneyVideoCardSkeleton />
           ) : total === 0 ? (
             <div
-              className="flex flex-col items-center justify-center text-center gap-3 rounded-3xl px-6"
-              style={{ aspectRatio: "9 / 16", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(212,175,55,0.15)" }}
+              className="flex h-full w-full flex-col items-center justify-center text-center gap-3 rounded-3xl px-6"
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(212,175,55,0.15)" }}
             >
               <FiFilm size={28} style={{ color: "rgba(212,175,55,0.4)" }} />
               <p className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>
@@ -370,12 +377,11 @@ export default function HoneyVideoCarousel() {
             <div
               ref={scrollRef}
               onScroll={handleScroll}
-              className="flex overflow-x-auto"
+              className="flex h-full w-full overflow-x-auto"
               style={{
                 scrollSnapType: "x mandatory",
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
-                aspectRatio: "9 / 16",
               }}
             >
               {videos.map((v, i) => (

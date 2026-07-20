@@ -320,7 +320,7 @@ export default function Home() {
       ════════════════════════════════════════════════════ */}
       <section
         className="relative overflow-hidden"
-        style={{ backgroundColor: "#F4EDE0", minHeight: "92vh" }}
+        style={{ backgroundColor: "#F4EDE0" }}
       >
         {/* LCP image — real <img> so browser can prioritise it */}
         <img
@@ -358,8 +358,8 @@ export default function Home() {
           }}
         />
 
-        <div className="relative flex items-end md:items-center min-h-[92vh]" style={{ zIndex: 3 }}>
-          <div className="w-full px-5 sm:px-8 lg:px-14 xl:px-20 pt-24 pb-44 md:pb-36">
+        <div className="relative flex items-end md:items-center min-h-[78vh] md:min-h-[92vh]" style={{ zIndex: 3 }}>
+          <div className="w-full px-5 sm:px-8 lg:px-14 xl:px-20 pt-24 pb-10 md:pb-36">
             <div className="max-w-[520px]">
 
               {/* ── Hexagonal badge ── */}
@@ -523,8 +523,8 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* Feature strip */}
-        <div className="absolute bottom-0 left-0 right-0 px-5 sm:px-8 lg:px-14 xl:px-20" style={{ zIndex: 3 }}>
+        {/* Feature strip — normal flow on mobile so it can't overlap hero text; floats over the hero on desktop where there's room */}
+        <div className="relative mt-8 md:mt-0 md:absolute md:bottom-0 md:left-0 md:right-0 px-5 sm:px-8 lg:px-14 xl:px-20" style={{ zIndex: 3 }}>
           <div
             className="rounded-t-3xl"
             style={{
