@@ -15,6 +15,7 @@ import {
   FiExternalLink,
   FiMenu,
   FiFilm,
+  FiGift,
 } from "react-icons/fi";
 import {
   clearAdminToken,
@@ -30,6 +31,7 @@ const mainNav = [
   { to: "/admin", icon: FiGrid, label: "Dashboard", end: true },
   { to: "/admin/products", icon: FiBox, label: "Products" },
   { to: "/admin/add-product", icon: FiPlusCircle, label: "Add Product" },
+  { to: "/admin/combos", icon: FiGift, label: "Combos" },
   { to: "/admin/videos", icon: FiFilm, label: "Videos" },
 ];
 
