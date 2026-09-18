@@ -2,8 +2,10 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiExternalLink, FiLock } from "react-icons/fi";
 import { AMAZON_STORE_URL } from "../config/environment";
+import { useSEO } from "../utils/seo";
 
 export default function Checkout() {
+  useSEO({ noindex: true });
   return (
     <div className="min-h-screen pt-32 pb-20 px-4 flex flex-col items-center justify-center bg-[#faf9f7]">
       <motion.div

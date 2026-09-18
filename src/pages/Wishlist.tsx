@@ -5,8 +5,10 @@ import { FiHeart, FiTrash2, FiExternalLink, FiShoppingBag } from "react-icons/fi
 import { useWishlist } from "../context/WishlistContext";
 import { WishlistCardSkeleton } from "../components/Skeletons";
 import { AMAZON_STORE_URL } from "../config/environment";
+import { useSEO } from "../utils/seo";
 
 const Wishlist: React.FC = () => {
+  useSEO({ noindex: true });
   const { wishlist, toggleWishlist, isLoading } = useWishlist();
   const navigate = useNavigate();
 

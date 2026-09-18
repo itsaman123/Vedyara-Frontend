@@ -203,19 +203,24 @@ export default function ProductDetail() {
       ? `${product?.name ?? "vedyara"}, vedyara multi flora honey, multiflora honey, vedyara honey, pure honey, raw honey india`
       : `${product?.name ?? "vedyara"}, vedyara natural products, pure spices india`,
     canonical:   id ? `https://vedyara.in/product/${id}` : undefined,
-    structuredData: product && isHoney
+    image:       product?.image || undefined,
+    structuredData: product
       ? {
           "@context": "https://schema.org",
           "@type":    "Product",
           name:       product.name,
-          alternateName: ["Vedyara Multi Flora Honey", "Vedyara Multiflora Honey"],
+          ...(isHoney && {
+            alternateName: ["Vedyara Multi Flora Honey", "Vedyara Multiflora Honey"],
+          }),
           description: product.shortDesc || product.description,
           brand: { "@type": "Brand", name: "Vedyara" },
           image: product.images,
-          category: "Natural Honey",
+          category: isHoney ? "Natural Honey" : product.category,
           offers: {
             "@type":        "Offer",
-            availability:   "https://schema.org/InStock",
+            availability:   apiProduct?.status === "out_of_stock" || apiProduct?.stock === 0
+              ? "https://schema.org/OutOfStock"
+              : "https://schema.org/InStock",
             priceCurrency:  "INR",
             price:          product.price.replace(/[^\d.]/g, ""),
             url:            AMAZON_STORE_URL,

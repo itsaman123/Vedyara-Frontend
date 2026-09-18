@@ -5,6 +5,8 @@ export interface SEOMeta {
   description?: string;
   keywords?: string;
   canonical?: string;
+  image?: string;
+  noindex?: boolean;
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
@@ -13,6 +15,8 @@ export function useSEO({
   description,
   keywords,
   canonical,
+  image,
+  noindex,
   structuredData,
 }: SEOMeta) {
   useEffect(() => {
@@ -40,6 +44,13 @@ export function useSEO({
       setMeta("twitter:title", title);
     }
     if (keywords) setMeta("keywords", keywords);
+    if (image) {
+      setMeta("og:image", image, true);
+      setMeta("twitter:image", image);
+    }
+
+    const prevRobots = document.querySelector<HTMLMetaElement>('meta[name="robots"]')?.content;
+    if (noindex) setMeta("robots", "noindex, nofollow");
 
     if (canonical) {
       let link = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
@@ -49,6 +60,7 @@ export function useSEO({
         document.head.appendChild(link);
       }
       link.href = canonical;
+      setMeta("og:url", canonical, true);
     }
 
     let sdScript: HTMLScriptElement | null = null;
@@ -63,7 +75,8 @@ export function useSEO({
     return () => {
       document.title = prevTitle;
       sdScript?.remove();
+      if (noindex) setMeta("robots", prevRobots || "index, follow");
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, description, keywords, canonical]);
+  }, [title, description, keywords, canonical, image, noindex]);
 }

@@ -6,6 +6,7 @@ import { getMyOrders } from "../api/orderApi";
 import { getProfile } from "../api/userApi";
 import { toast } from "react-hot-toast";
 import { OrderHistorySkeleton } from "../components/Skeletons";
+import { useSEO } from "../utils/seo";
 
 interface OrderItem {
   product: {
@@ -33,6 +34,7 @@ interface UserProfile {
 }
 
 export default function Profile() {
+  useSEO({ noindex: true });
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"profile" | "orders">("orders");
   const [orders, setOrders] = useState<Order[]>([]);

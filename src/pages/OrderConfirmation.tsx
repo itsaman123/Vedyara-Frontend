@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { trackPurchase } from "../analytics";
+import { useSEO } from "../utils/seo";
 
 import { motion } from "framer-motion";
 import {
@@ -42,6 +43,7 @@ const fadeUp = (delay: number) => ({
 });
 
 export default function OrderConfirmation() {
+  useSEO({ noindex: true });
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as OrderState | null;

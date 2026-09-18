@@ -6,6 +6,7 @@ import { useCart } from "../context/CartContext";
 import { CartItemSkeleton } from "../components/Skeletons";
 import { AMAZON_STORE_URL } from "../config/environment";
 import HoneycombScene from "../components/HoneycombScene";
+import { useSEO } from "../utils/seo";
 
 const trustPillars = [
   { icon: "⭐", title: "4.8 Rating", sub: "Amazon Verified Reviews" },
@@ -22,6 +23,7 @@ const promises = [
 ];
 
 const Cart: React.FC = () => {
+  useSEO({ noindex: true });
   const { isLoading } = useCart();
 
   if (isLoading) {
