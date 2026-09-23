@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { FiHeart, FiExternalLink } from "react-icons/fi";
 import { useWishlist } from "../context/WishlistContext";
 import type { Product as ApiProduct } from "../api/productApi";
-import { AMAZON_STORE_URL } from "../config/environment";
+import { MEESHO_STORE_URL } from "../config/environment";
 
 export default function ProductCard({
   product,
@@ -95,16 +95,16 @@ export default function ProductCard({
             </div>
 
             <a
-              href={AMAZON_STORE_URL}
+              href={MEESHO_STORE_URL}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              aria-label="Order on Amazon"
+              aria-label="Order on Meesho"
               className="inline-flex items-center justify-center gap-1 h-8 px-3 rounded-xl font-bold text-[11px] flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
               style={{
-                background: "#FF9900",
-                color: "#1a1a1a",
-                boxShadow: "0 4px 12px rgba(255,153,0,0.3)",
+                background: "#a30089",
+                color: "#fff",
+                boxShadow: "0 4px 12px rgba(163,0,137,0.3)",
               }}
             >
               Buy <FiExternalLink size={10} />

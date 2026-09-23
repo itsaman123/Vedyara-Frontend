@@ -189,7 +189,7 @@ const faqs = [
   },
   {
     q: "Where can I buy Vedyara products?",
-    a: "You can shop directly on our website or on Amazon India — we're now live on Amazon! Search 'Vedyara' or visit our Amazon store.",
+    a: "You can shop directly on our website, or order on Meesho and Amazon India — search 'Vedyara' or visit our Meesho and Amazon stores.",
   },
   {
     q: "Are your products lab-tested and certified?",
@@ -395,7 +395,7 @@ export default function Contact() {
                 We're Here to Help
               </motion.h2>
               <p className="text-sm text-gray-500">
-                Whether you have product questions, need help with your Amazon order, or want to explore
+                Whether you have product questions, need help with your Meesho or Amazon order, or want to explore
                 bulk/wholesale pricing — drop us a message.
               </p>
             </div>
@@ -562,7 +562,7 @@ export default function Contact() {
                           <option value="" disabled>Select a topic…</option>
                           <option value="product-inquiry">Product Inquiry</option>
                           <option value="bulk-order">Bulk / Wholesale Order</option>
-                          <option value="amazon-order">Amazon Order Help</option>
+                          <option value="marketplace-order">Meesho / Amazon Order Help</option>
                           <option value="quality-feedback">Quality Feedback</option>
                           <option value="partnership">Farm / Business Partnership</option>
                           <option value="other">Other</option>

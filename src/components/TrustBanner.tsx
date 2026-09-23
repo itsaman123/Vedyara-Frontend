@@ -1,6 +1,7 @@
 export default function TrustBanner() {
   const items = [
-    { emoji: "🛒", label: "Now Live on Amazon India" },
+    { emoji: "🛍️", label: "Now Live on Meesho" },
+    { emoji: "🛒", label: "Also on Amazon India" },
     { emoji: "🔬", label: "Lab Tested Every Batch" },
     { emoji: "🌿", label: "100% Natural" },
     { emoji: "🌾", label: "Farm Sourced" },

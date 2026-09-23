@@ -4,15 +4,15 @@ import { motion } from "framer-motion";
 import { FiExternalLink, FiArrowRight } from "react-icons/fi";
 import { useCart } from "../context/CartContext";
 import { CartItemSkeleton } from "../components/Skeletons";
-import { AMAZON_STORE_URL } from "../config/environment";
+import { AMAZON_STORE_URL, MEESHO_STORE_URL } from "../config/environment";
 import HoneycombScene from "../components/HoneycombScene";
 import { useSEO } from "../utils/seo";
 
 const trustPillars = [
-  { icon: "⭐", title: "4.8 Rating", sub: "Amazon Verified Reviews" },
-  { icon: "🚚", title: "Fast Delivery", sub: "Pan-India via Amazon" },
+  { icon: "⭐", title: "4.8 Rating", sub: "Verified Reviews" },
+  { icon: "🚚", title: "Fast Delivery", sub: "Via Meesho & Amazon" },
   { icon: "↩️", title: "Easy Returns", sub: "Hassle-free policy" },
-  { icon: "🔒", title: "Secure Payment", sub: "Amazon Protected" },
+  { icon: "🔒", title: "Secure Payment", sub: "Marketplace Protected" },
 ];
 
 const promises = [
@@ -154,7 +154,7 @@ const Cart: React.FC = () => {
               backgroundClip: "text",
             }}
           >
-            On Amazon India
+            On Meesho & Amazon
           </span>
         </motion.h1>
 
@@ -167,7 +167,7 @@ const Cart: React.FC = () => {
           style={{ color: "rgba(255,255,255,0.48)", lineHeight: 1.8, fontSize: "0.97rem" }}
         >
           Our direct checkout is still being built. Until then, our full Vedyara range is available on
-          Amazon India — same pure quality, trusted delivery, easy returns.
+          Meesho and Amazon India — same pure quality, trusted delivery, easy returns.
         </motion.p>
 
         {/* ── Honey drip decoration ── */}
@@ -193,8 +193,24 @@ const Cart: React.FC = () => {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45, duration: 0.5 }}
-          className="flex flex-col sm:flex-row gap-4 mb-16"
+          className="flex flex-col sm:flex-row flex-wrap gap-4 mb-16 justify-center"
         >
+          <motion.a
+            href={MEESHO_STORE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.05, y: -3 }}
+            whileTap={{ scale: 0.95 }}
+            className="inline-flex items-center justify-center gap-2.5 px-9 py-4 rounded-2xl font-bold text-base"
+            style={{
+              background: "linear-gradient(135deg, #a30089 0%, #e838cd 100%)",
+              color: "#fff",
+              boxShadow: "0 12px 40px rgba(163,0,137,0.45), 0 4px 16px rgba(163,0,137,0.2)",
+            }}
+          >
+            <FiExternalLink size={18} />
+            Shop on Meesho
+          </motion.a>
           <motion.a
             href={AMAZON_STORE_URL}
             target="_blank"
@@ -209,7 +225,7 @@ const Cart: React.FC = () => {
             }}
           >
             <FiExternalLink size={18} />
-            Shop on Amazon India
+            Shop on Amazon
           </motion.a>
           <Link to="/products">
             <motion.button

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiHeart, FiTrash2, FiExternalLink, FiShoppingBag } from "react-icons/fi";
 import { useWishlist } from "../context/WishlistContext";
 import { WishlistCardSkeleton } from "../components/Skeletons";
-import { AMAZON_STORE_URL } from "../config/environment";
+import { AMAZON_STORE_URL, MEESHO_STORE_URL } from "../config/environment";
 import { useSEO } from "../utils/seo";
 
 const Wishlist: React.FC = () => {
@@ -110,15 +110,27 @@ const Wishlist: React.FC = () => {
 
                   <div className="mt-auto space-y-3">
                     <motion.a
-                      href={AMAZON_STORE_URL}
+                      href={MEESHO_STORE_URL}
                       target="_blank"
                       rel="noopener noreferrer"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className="w-full py-3 rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2"
-                      style={{ background: "#FF9900", color: "#1a1a1a" }}
+                      style={{ background: "#a30089", color: "#fff" }}
                     >
                       <FiExternalLink size={16} />
+                      Order on Meesho
+                    </motion.a>
+                    <motion.a
+                      href={AMAZON_STORE_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2"
+                      style={{ background: "rgba(255,153,0,0.1)", color: "#b36b00", border: "1.5px solid rgba(255,153,0,0.3)" }}
+                    >
+                      <FiExternalLink size={14} />
                       Order on Amazon
                     </motion.a>
                     <button

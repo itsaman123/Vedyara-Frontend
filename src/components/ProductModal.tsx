@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiX, FiCheck, FiPackage, FiHeart, FiShare2, FiExternalLink } from "react-icons/fi";
 
-import { AMAZON_STORE_URL } from "../config/environment";
+import { AMAZON_STORE_URL, MEESHO_STORE_URL } from "../config/environment";
 
 interface ProductModalProps {
   product: any | null;
@@ -395,7 +395,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                       className="flex gap-3 pt-2 mt-auto"
                     >
                       <motion.a
-                        href={AMAZON_STORE_URL}
+                        href={MEESHO_STORE_URL}
                         target="_blank"
                         rel="noopener noreferrer"
                         whileHover={{ scale: 1.02, y: -2 }}
@@ -403,12 +403,12 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                         onClick={(e) => e.stopPropagation()}
                         className="flex-1 flex items-center justify-center gap-2.5 py-4 rounded-2xl font-bold text-sm"
                         style={{
-                          background: "#FF9900",
-                          color: "#1a1a1a",
-                          boxShadow: "0 8px 24px rgba(255,153,0,0.3)",
+                          background: "#a30089",
+                          color: "#fff",
+                          boxShadow: "0 8px 24px rgba(163,0,137,0.3)",
                         }}
                       >
-                        <FiExternalLink size={18} /> Order on Amazon India
+                        <FiExternalLink size={18} /> Order on Meesho
                       </motion.a>
 
                       <motion.button

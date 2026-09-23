@@ -170,7 +170,7 @@ const values = [
 const milestones = [
   { year: "2022", event: "First products launched — Pure Honey & Turmeric Powder" },
   { year: "2024", event: "Expanded to 50+ farmer partnerships across India" },
-  { year: "2026", event: "Now live nationally & on Amazon India 🛒" },
+  { year: "2026", event: "Now live nationally & on Meesho + Amazon India 🛍️" },
 ];
 
 /* ═══════════════════════════════════════════════════════════

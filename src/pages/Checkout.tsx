@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiExternalLink, FiLock } from "react-icons/fi";
-import { AMAZON_STORE_URL } from "../config/environment";
+import { AMAZON_STORE_URL, MEESHO_STORE_URL } from "../config/environment";
 import { useSEO } from "../utils/seo";
 
 export default function Checkout() {
@@ -36,13 +36,30 @@ export default function Checkout() {
           Checkout Not Yet Available
         </h1>
         <p className="text-base mb-3" style={{ color: "rgba(26,15,5,0.55)" }}>
-          We're actively building our direct ordering system. While we finish up, you can order all Vedyara products on Amazon India with fast delivery.
+          We're actively building our direct ordering system. While we finish up, you can order all Vedyara products on Meesho or Amazon India with fast delivery.
         </p>
         <p className="text-sm mb-10" style={{ color: "rgba(26,15,5,0.4)" }}>
-          Same quality, same trust — just on Amazon for now.
+          Same quality, same trust — just on Meesho & Amazon for now.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center">
+          <motion.a
+            href={MEESHO_STORE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl font-bold text-base"
+            style={{
+              background: "#a30089",
+              color: "#fff",
+              boxShadow: "0 8px 24px rgba(163,0,137,0.35)",
+            }}
+          >
+            <FiExternalLink size={18} />
+            Order on Meesho
+          </motion.a>
+
           <motion.a
             href={AMAZON_STORE_URL}
             target="_blank"
@@ -57,7 +74,7 @@ export default function Checkout() {
             }}
           >
             <FiExternalLink size={18} />
-            Order on Amazon India
+            Order on Amazon
           </motion.a>
 
           <Link to="/products">

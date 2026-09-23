@@ -181,7 +181,7 @@ function TestimonialsCarousel() {
               Loved by 1,000+ Families
             </motion.h2>
             <motion.p variants={fadeUp} custom={0.2} className="mt-2 text-sm" style={{ color: "rgba(62,47,28,0.55)" }}>
-              from verified reviews on Amazon India
+              from verified reviews on Meesho & Amazon India
             </motion.p>
           </div>
           {/* Nav arrows */}
@@ -248,7 +248,7 @@ export default function Home() {
 
   useSEO({
     title: "Vedyara | Buy Multi Flora Honey Online — Pure Natural Honey & Spices India",
-    description: "Buy Vedyara Multi Flora Honey online — pure, raw multiflora honey from pristine forests. Also find natural turmeric & coriander powder. 100% natural, lab-tested. Order on Amazon India.",
+    description: "Buy Vedyara Multi Flora Honey online — pure, raw multiflora honey from pristine forests. Also find natural turmeric & coriander powder. 100% natural, lab-tested. Available on Meesho & Amazon.",
     keywords: "vedyara multi flora honey, multi flora honey, vedyara multiflora honey, vedyara multi-flora honey, vedyara honey, buy honey online india, pure natural honey, raw multiflora honey",
     canonical: "https://vedyara.in/",
   });

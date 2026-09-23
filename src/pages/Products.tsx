@@ -14,7 +14,7 @@ import HoneyImg from "../assets/image-1.jpg";
 import HaldiImg from "../assets/haldi.jpeg";
 import DhaniyaImg from "../assets/dhaniya.jpeg";
 import { useWishlist } from "../context/WishlistContext";
-import { AMAZON_STORE_URL } from "../config/environment";
+import { MEESHO_STORE_URL } from "../config/environment";
 import { useSEO } from "../utils/seo";
 import HoneycombScene from "../components/HoneycombScene";
 
@@ -120,14 +120,14 @@ const ProductListRow = ({
               <FiHeart size={15} fill={wishlisted ? "#fff" : "transparent"} />
             </button>
             <a
-              href={AMAZON_STORE_URL}
+              href={MEESHO_STORE_URL}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className="h-9 px-4 flex items-center gap-1.5 rounded-xl font-bold text-sm transition-all duration-200 active:scale-95"
-              style={{ background: "#FF9900", color: "#1a1a1a", boxShadow: "0 4px 12px rgba(255,153,0,0.25)" }}
+              style={{ background: "#a30089", color: "#fff", boxShadow: "0 4px 12px rgba(163,0,137,0.25)" }}
             >
-              Order on Amazon <FiExternalLink size={12} />
+              Order on Meesho <FiExternalLink size={12} />
             </a>
           </div>
         </div>
@@ -199,7 +199,7 @@ export default function Products() {
 
   useSEO({
     title: "Buy Multi Flora Honey & Natural Spices Online | Vedyara Products",
-    description: "Shop Vedyara's full range — pure multi flora honey, turmeric powder & coriander powder. Farm-sourced, lab-tested. Order Vedyara multiflora honey on Amazon India.",
+    description: "Shop Vedyara's full range — pure multi flora honey, turmeric powder & coriander powder. Farm-sourced, lab-tested. Available on Meesho & Amazon India.",
     keywords: "vedyara multi flora honey price, buy multiflora honey online, vedyara honey shop, natural spices india, buy vedyara products",
     canonical: "https://vedyara.in/products",
   });
@@ -449,7 +449,7 @@ export default function Products() {
               { emoji: "🍯", title: "Raw & Unprocessed", desc: "Cold-extracted, enzymes preserved" },
               { emoji: "🔬", title: "Lab Tested", desc: "Every batch verified for purity" },
               { emoji: "🌿", title: "Zero Additives", desc: "No preservatives, no shortcuts" },
-              { emoji: "🚚", title: "Pan-India Delivery", desc: "Fast & secure via Amazon" },
+              { emoji: "🚚", title: "Pan-India Delivery", desc: "Fast & secure via Meesho & Amazon" },
             ].map((item, i) => (
               <motion.div
                 key={i}

@@ -15,7 +15,7 @@ import {
   FiTrendingUp,
   FiExternalLink,
 } from "react-icons/fi";
-import { AMAZON_STORE_URL } from "../config/environment";
+import { AMAZON_STORE_URL, MEESHO_STORE_URL } from "../config/environment";
 
 const quickLinks = [
   { label: "Home", to: "/" },
@@ -221,24 +221,43 @@ export default function Footer() {
               ))}
             </div>
 
-            {/* Amazon badge */}
-            <a
-              href={AMAZON_STORE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
-              style={{
-                background: "rgba(255,153,0,0.1)",
-                border: "1px solid rgba(255,153,0,0.25)",
-              }}
-            >
-              <span style={{ fontSize: "1.1rem" }}>🛒</span>
-              <div>
-                <p style={{ fontSize: "0.62rem", color: "rgba(248,245,240,0.45)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em" }}>Also available on</p>
-                <p style={{ fontSize: "0.82rem", color: "#FF9900", fontWeight: 700, letterSpacing: "0.02em" }}>Amazon India</p>
-              </div>
-              <FiExternalLink size={13} style={{ color: "rgba(255,153,0,0.6)", marginLeft: "auto" }} />
-            </a>
+            {/* Marketplace badges — Meesho first (priority) */}
+            <div className="flex flex-wrap gap-3">
+              <a
+                href={MEESHO_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
+                style={{
+                  background: "rgba(163,0,137,0.12)",
+                  border: "1px solid rgba(163,0,137,0.3)",
+                }}
+              >
+                <span style={{ fontSize: "1.1rem" }}>🛍️</span>
+                <div>
+                  <p style={{ fontSize: "0.62rem", color: "rgba(248,245,240,0.45)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em" }}>Shop on</p>
+                  <p style={{ fontSize: "0.82rem", color: "#e838cd", fontWeight: 700, letterSpacing: "0.02em" }}>Meesho</p>
+                </div>
+                <FiExternalLink size={13} style={{ color: "rgba(232,56,205,0.6)", marginLeft: "auto" }} />
+              </a>
+              <a
+                href={AMAZON_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
+                style={{
+                  background: "rgba(255,153,0,0.1)",
+                  border: "1px solid rgba(255,153,0,0.25)",
+                }}
+              >
+                <span style={{ fontSize: "1.1rem" }}>🛒</span>
+                <div>
+                  <p style={{ fontSize: "0.62rem", color: "rgba(248,245,240,0.45)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em" }}>Also available on</p>
+                  <p style={{ fontSize: "0.82rem", color: "#FF9900", fontWeight: 700, letterSpacing: "0.02em" }}>Amazon India</p>
+                </div>
+                <FiExternalLink size={13} style={{ color: "rgba(255,153,0,0.6)", marginLeft: "auto" }} />
+              </a>
+            </div>
           </motion.div>
 
           {/* ── Col 2: Quick Links ── */}

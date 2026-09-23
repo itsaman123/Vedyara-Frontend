@@ -13,7 +13,7 @@ import { useProduct } from "../api/productApi";
 import { products as localProducts, type Product } from "../data/products";
 import { useWishlist } from "../context/WishlistContext";
 import { ProductDetailSkeleton } from "../components/Skeletons";
-import { AMAZON_STORE_URL } from "../config/environment";
+import { AMAZON_STORE_URL, MEESHO_STORE_URL } from "../config/environment";
 import { useSEO } from "../utils/seo";
 
 /* ─────────────────────────────────────────────────────────────
@@ -216,15 +216,16 @@ export default function ProductDetail() {
           brand: { "@type": "Brand", name: "Vedyara" },
           image: product.images,
           category: isHoney ? "Natural Honey" : product.category,
-          offers: {
+          offers: ["Meesho", "Amazon"].map((seller) => ({
             "@type":        "Offer",
             availability:   apiProduct?.status === "out_of_stock" || apiProduct?.stock === 0
               ? "https://schema.org/OutOfStock"
               : "https://schema.org/InStock",
             priceCurrency:  "INR",
             price:          product.price.replace(/[^\d.]/g, ""),
-            url:            AMAZON_STORE_URL,
-          },
+            url:            seller === "Meesho" ? MEESHO_STORE_URL : AMAZON_STORE_URL,
+            seller:         { "@type": "Organization", name: seller },
+          })),
         }
       : undefined,
   });
@@ -715,42 +716,61 @@ export default function ProductDetail() {
                       Direct Orders Opening Soon
                     </p>
                     <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
-                      Our website checkout is in development. Order this product right now on Amazon India — same quality, trusted delivery.
+                      Our website checkout is in development. Order this product right now on Meesho or Amazon — same quality, trusted delivery.
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* CTA row */}
-              <div className="flex gap-3 mb-6">
+              <div className="flex flex-col gap-3 mb-6">
+                <div className="flex gap-3">
+                  <motion.a
+                    href={MEESHO_STORE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.03, y: -2 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="flex-1 flex items-center justify-center gap-2.5 py-4 rounded-2xl font-bold text-base"
+                    style={{
+                      background: "linear-gradient(135deg, #a30089 0%, #e838cd 100%)",
+                      color: "#fff",
+                      boxShadow: "0 12px 32px rgba(163,0,137,0.35)",
+                    }}
+                  >
+                    <FiExternalLink size={19} />
+                    Order on Meesho
+                  </motion.a>
+
+                  <motion.button
+                    whileHover={{ scale: 1.06 }}
+                    whileTap={{ scale: 0.93 }}
+                    className="w-14 flex items-center justify-center rounded-2xl border-2 transition-colors duration-200"
+                    style={{
+                      borderColor: "rgba(62,47,28,0.12)",
+                      color: "rgba(62,47,28,0.45)",
+                    }}
+                  >
+                    <FiShare2 size={18} />
+                  </motion.button>
+                </div>
+
                 <motion.a
                   href={AMAZON_STORE_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileHover={{ scale: 1.02, y: -1 }}
                   whileTap={{ scale: 0.97 }}
-                  className="flex-1 flex items-center justify-center gap-2.5 py-4 rounded-2xl font-bold text-base"
+                  className="flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-bold text-sm"
                   style={{
-                    background: "linear-gradient(135deg, #FF9900 0%, #ffb733 100%)",
-                    color: "#1a1a1a",
-                    boxShadow: "0 12px 32px rgba(255,153,0,0.35)",
+                    background: "rgba(255,153,0,0.1)",
+                    color: "#b36b00",
+                    border: "1.5px solid rgba(255,153,0,0.3)",
                   }}
                 >
-                  <FiExternalLink size={19} />
-                  Order on Amazon India
+                  <FiExternalLink size={16} />
+                  Also available on Amazon India
                 </motion.a>
-
-                <motion.button
-                  whileHover={{ scale: 1.06 }}
-                  whileTap={{ scale: 0.93 }}
-                  className="w-14 flex items-center justify-center rounded-2xl border-2 transition-colors duration-200"
-                  style={{
-                    borderColor: "rgba(62,47,28,0.12)",
-                    color: "rgba(62,47,28,0.45)",
-                  }}
-                >
-                  <FiShare2 size={18} />
-                </motion.button>
               </div>
 
               {/* ── Accordion sections ── */}
@@ -866,7 +886,7 @@ export default function ProductDetail() {
                         Email: hello@vedyara.in
                       </p>
                       <p className="text-xs" style={{ color: "rgba(62,47,28,0.6)" }}>
-                        Amazon orders: Use the Amazon return portal for fastest resolution.
+                        Meesho or Amazon orders: Use that marketplace's return portal for fastest resolution.
                       </p>
                     </div>
                   </div>
