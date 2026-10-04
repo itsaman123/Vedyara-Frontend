@@ -13,6 +13,7 @@ const items = [
   {
     key: "honey",
     name: "Multi Flora Honey",
+    short: "Honey",
     eyebrow: "Liquid gold",
     line: "Nectar from countless wildflowers, left raw so every spoon tastes of where it came from.",
     perks: ["Natural sweetener", "Rich in antioxidants", "Boosts immunity", "Aids digestion"],
@@ -27,6 +28,7 @@ const items = [
   {
     key: "turmeric",
     name: "Turmeric Powder",
+    short: "Turmeric",
     eyebrow: "The golden spice",
     line: "Stone-ground slowly, so the colour stays deep and the aroma stays alive.",
     perks: ["High curcumin", "Deep natural colour", "Everyday immunity", "No added colour"],
@@ -41,6 +43,7 @@ const items = [
   {
     key: "coriander",
     name: "Coriander Powder",
+    short: "Coriander",
     eyebrow: "Aromatic purity",
     line: "That warm, citrusy aroma you notice the moment you open the pack — nothing else mixed in.",
     perks: ["Fresh aroma", "Digestive aid", "No fillers", "Enhances flavour"],
@@ -57,13 +60,21 @@ const items = [
 export default function ProductSpotlight() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+  // Once someone taps or swipes (mostly on phones), stop auto-advancing so the
+  // content doesn't change under them while they read.
+  const [interacted, setInteracted] = useState(false);
   const item = items[active];
 
+  const select = (i: number) => {
+    setInteracted(true);
+    setActive((i + items.length) % items.length);
+  };
+
   useEffect(() => {
-    if (paused) return;
+    if (paused || interacted) return;
     const t = window.setTimeout(() => setActive((i) => (i + 1) % items.length), CYCLE_MS);
     return () => window.clearTimeout(t);
-  }, [active, paused]);
+  }, [active, paused, interacted]);
 
   return (
     <section
@@ -91,11 +102,35 @@ export default function ProductSpotlight() {
               Three pure essentials.
             </span>
           </h2>
-          <p className="text-[15px] leading-7 max-w-md mb-8" style={{ color: "rgba(62,47,28,0.62)" }}>
+          <p className="text-[15px] leading-7 max-w-md mb-6 lg:mb-8" style={{ color: "rgba(62,47,28,0.62)" }}>
             Everything we make starts and ends the same way — nothing added, nothing taken away.
           </p>
 
-          <div className="flex flex-col gap-2" role="tablist">
+          {/* Mobile: swipeable chips */}
+          <div className="lg:hidden flex gap-2 overflow-x-auto -mx-5 px-5 py-1" style={{ scrollbarWidth: "none" }} role="tablist">
+            {items.map((it, i) => {
+              const on = i === active;
+              return (
+                <button
+                  key={it.key}
+                  role="tab"
+                  aria-selected={on}
+                  onClick={() => select(i)}
+                  className="flex-shrink-0 inline-flex items-center gap-2 h-11 px-4 rounded-full text-sm font-semibold transition-colors"
+                  style={{
+                    background: on ? it.accent : "#FAF6EE",
+                    color: on ? "#fff" : "#3E2F1C",
+                    boxShadow: on ? `0 6px 16px ${it.accent}55` : "none",
+                  }}
+                >
+                  <span>{it.emoji}</span>
+                  {it.short}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="hidden lg:flex flex-col gap-2" role="tablist">
             {items.map((it, i) => {
               const on = i === active;
               return (
@@ -145,12 +180,19 @@ export default function ProductSpotlight() {
         {/* ── Right: stage ── */}
         <div className="grid grid-cols-1 sm:grid-cols-[1fr_0.85fr] gap-6 sm:gap-8 items-center">
           {/* Arch image */}
-          <div className="relative mx-auto w-full max-w-[340px]">
+          <div className="relative mx-auto w-full max-w-[270px] sm:max-w-[340px]">
             <motion.div
-              className="relative aspect-[3/4] rounded-t-full rounded-b-[2rem] overflow-hidden"
+              className="relative aspect-[3/4] rounded-t-full rounded-b-[2rem] overflow-hidden cursor-grab active:cursor-grabbing"
               animate={{ background: item.tint }}
               transition={{ duration: 0.6 }}
               style={{ boxShadow: "0 30px 60px rgba(62,47,28,0.14)" }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.25}
+              onDragEnd={(_, info) => {
+                if (info.offset.x < -50) select(active + 1);
+                else if (info.offset.x > 50) select(active - 1);
+              }}
             >
               <AnimatePresence mode="wait">
                 <motion.div
@@ -172,7 +214,20 @@ export default function ProductSpotlight() {
               </AnimatePresence>
             </motion.div>
 
-            <div className="absolute -left-6 sm:-left-10 bottom-10">
+            <div className="lg:hidden flex justify-center gap-1.5 mt-4" aria-hidden="true">
+              {items.map((it, i) => (
+                <span
+                  key={it.key}
+                  className="h-1.5 rounded-full transition-all duration-300"
+                  style={{ width: i === active ? 22 : 6, background: i === active ? item.accent : "rgba(62,47,28,0.18)" }}
+                />
+              ))}
+            </div>
+            <p className="lg:hidden text-center text-[11px] mt-2" style={{ color: "rgba(62,47,28,0.45)" }}>
+              Swipe to explore
+            </p>
+
+            <div className="absolute -left-4 sm:-left-10 top-[58%]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={item.key}
@@ -181,7 +236,7 @@ export default function ProductSpotlight() {
                   exit={{ opacity: 0, scale: 0.6 }}
                   transition={{ duration: 0.45 }}
                 >
-                  <RotatingSeal text={item.seal} center={item.emoji} size={104} color={item.accent} />
+                  <RotatingSeal text={item.seal} center={item.emoji} size={88} color={item.accent} className="sm:scale-110" />
                 </motion.div>
               </AnimatePresence>
             </div>

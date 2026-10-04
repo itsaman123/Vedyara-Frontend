@@ -402,6 +402,51 @@ export default function Home() {
                   />
                 </Link>
               </motion.div>
+
+              {/* Featured product card — mobile/tablet version of the floating card */}
+              {featuredProducts[0] && (
+                <motion.div
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.45, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                  className="lg:hidden relative mt-12 max-w-[420px]"
+                >
+                  <div className="absolute -top-12 right-1 z-10">
+                    <RotatingSeal size={64} center="🐝" text="FROM THE HIVE · TO YOUR HOME · " />
+                  </div>
+                  <Link
+                    to={`/product/${featuredProducts[0].slug}`}
+                    className="flex items-center gap-3 p-2.5 pr-3 rounded-2xl active:scale-[0.98] transition-transform"
+                    style={{
+                      background: "rgba(255,255,255,0.14)",
+                      border: "1px solid rgba(255,255,255,0.25)",
+                      backdropFilter: "blur(16px) saturate(140%)",
+                      WebkitBackdropFilter: "blur(16px) saturate(140%)",
+                    }}
+                  >
+                    <div className="w-14 h-14 rounded-xl bg-white/90 p-1 flex-shrink-0">
+                      <img src={featuredProducts[0].images[0]} alt="" className="w-full h-full object-contain" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[9px] font-semibold uppercase tracking-[0.18em]" style={{ color: "#F3D57A" }}>
+                        Bestseller
+                      </p>
+                      <p className="text-[13px] font-semibold text-white leading-snug truncate">
+                        {featuredProducts[0].name.split("|")[0].trim()}
+                      </p>
+                      <p className="text-[13px] text-white/80">
+                        ₹{featuredProducts[0].discountedPrice ?? featuredProducts[0].price}
+                        {featuredProducts[0].discountedPrice !== null && (
+                          <span className="ml-1.5 text-[11px] line-through text-white/50">₹{featuredProducts[0].price}</span>
+                        )}
+                      </p>
+                    </div>
+                    <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0" style={{ color: "#1a1208" }}>
+                      <FiArrowRight size={15} />
+                    </span>
+                  </Link>
+                </motion.div>
+              )}
             </div>
           </div>
         </div>

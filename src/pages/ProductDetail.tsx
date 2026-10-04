@@ -259,9 +259,15 @@ function DailyRituals({ kind, name }: { kind: keyof typeof rituals; name: string
         <p className="text-sm mt-2" style={{ color: MUTED }}>
           Little habits with {name}.
         </p>
+        <p className="sm:hidden text-[11px] mt-3 font-medium" style={{ color: SUBTLE }}>
+          Swipe for more →
+        </p>
       </div>
 
-      <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div
+        className="relative flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 overflow-x-auto sm:overflow-visible snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 py-3 sm:py-0"
+        style={{ scrollbarWidth: "none" }}
+      >
         {/* dashed connector behind the cards (desktop) */}
         <svg className="hidden lg:block absolute left-0 right-0 top-12 w-full h-8 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 10" aria-hidden="true">
           <path d="M2 5 C 20 0, 30 10, 50 5 S 80 0, 98 5" fill="none" stroke="#D4AF37" strokeWidth="0.25" strokeDasharray="1 1.2" vectorEffect="non-scaling-stroke" />
@@ -275,7 +281,7 @@ function DailyRituals({ kind, name }: { kind: keyof typeof rituals; name: string
             whileHover={{ rotate: 0, y: -6 }}
             viewport={{ once: true, margin: "-60px" }}
             transition={{ delay: i * 0.08, duration: 0.45, ease: "easeOut" }}
-            className="relative rounded-3xl p-6 pt-7"
+            className="relative flex-shrink-0 w-[76%] sm:w-auto snap-center rounded-3xl p-6 pt-7"
             style={{ background: ritualTints[i % ritualTints.length], boxShadow: "0 10px 30px rgba(62,47,28,0.06)" }}
           >
             <span
@@ -721,8 +727,30 @@ export default function ProductDetail() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
+                    // Swipe left/right to browse photos on touch screens
+                    drag={images.length > 1 ? "x" : false}
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.3}
+                    onDragEnd={(_, info) => {
+                      if (info.offset.x < -50) setSelectedIdx((i) => (i + 1) % images.length);
+                      else if (info.offset.x > 50) setSelectedIdx((i) => (i - 1 + images.length) % images.length);
+                    }}
+                    draggable={false}
                   />
                 </AnimatePresence>
+
+                {/* Dots (mobile) */}
+                {images.length > 1 && (
+                  <div className="lg:hidden absolute bottom-3 right-3 z-20 flex items-center gap-1 px-2 py-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.9)" }}>
+                    {images.map((_, i) => (
+                      <span
+                        key={i}
+                        className="h-1.5 rounded-full transition-all duration-300"
+                        style={{ width: i === selectedIdx ? 14 : 5, background: i === selectedIdx ? "#6B8E23" : "rgba(62,47,28,0.2)" }}
+                      />
+                    ))}
+                  </div>
+                )}
 
                 <div className="absolute bottom-3 left-3 z-20 pointer-events-none">
                   <RotatingSeal
