@@ -420,12 +420,12 @@ export default function Navbar() {
                 <div className="max-w-[1100px] mx-auto px-8 py-7 grid grid-cols-[1fr_1fr_1fr_260px] gap-5">
                   {shopCategories.map((c) => (
                     <Link key={c.label} to={c.to} className="group rounded-2xl overflow-hidden" style={{ background: "#F8F5F0" }}>
-                      <div className="aspect-[16/10] overflow-hidden">
+                      <div className="h-44 overflow-hidden flex items-center justify-center p-3">
                         <img
                           src={c.img}
                           alt=""
                           loading="lazy"
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="h-full w-auto max-w-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
                         />
                       </div>
                       <div className="px-4 py-3 flex items-center justify-between gap-2">
@@ -637,7 +637,7 @@ export default function Navbar() {
                 <div className="grid grid-cols-3 gap-2.5">
                   {shopCategories.map((c) => (
                     <Link key={c.label} to={c.to} className="rounded-xl overflow-hidden" style={{ background: "#F3EFE8" }}>
-                      <img src={c.img} alt="" loading="lazy" className="w-full aspect-square object-cover" />
+                      <img src={c.img} alt="" loading="lazy" className="w-full aspect-[3/4] object-contain p-1.5 mix-blend-multiply" />
                       <p className="text-[11px] font-semibold text-center px-1 py-2 leading-tight" style={{ color: "#2a1f12" }}>
                         {c.label}
                       </p>

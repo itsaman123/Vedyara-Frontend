@@ -153,17 +153,22 @@ export default function ProductSpotlight() {
               style={{ boxShadow: "0 30px 60px rgba(62,47,28,0.14)" }}
             >
               <AnimatePresence mode="wait">
-                <motion.img
+                <motion.div
                   key={item.key}
-                  src={item.img}
-                  alt={item.name}
-                  loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover"
-                  initial={{ opacity: 0, scale: 1.08 }}
+                  className="absolute inset-0 flex items-center justify-center px-7 pt-16 pb-7"
+                  initial={{ opacity: 0, scale: 1.06 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.97 }}
                   transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                />
+                >
+                  {/* Sized to the photo's own shape so nothing is cropped */}
+                  <img
+                    src={item.img}
+                    alt={item.name}
+                    loading="lazy"
+                    className="max-w-full max-h-full w-auto h-auto rounded-2xl mix-blend-multiply"
+                  />
+                </motion.div>
               </AnimatePresence>
             </motion.div>
 
