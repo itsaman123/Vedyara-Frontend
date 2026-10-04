@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import HeroBanner from "../assets/hero-banner.png";
 import HeroVideo from "../assets/hero-vid.mp4";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef } from "react";
 import {
   FiArrowRight,
@@ -26,6 +26,9 @@ import ComboPacks from "../components/ComboPacks";
 import EducationalSection from "../components/EducationalSection";
 import ProductCard from "../components/ProductCard";
 import HoneyVideoCarousel from "../components/HoneyVideoCarousel";
+import ProductSpotlight from "../components/ProductSpotlight";
+import Manifesto from "../components/Manifesto";
+import RotatingSeal from "../components/RotatingSeal";
 import { fadeUp, staggerContainer } from "../utils/animations";
 import { ProductCardSkeleton } from "../components/Skeletons";
 import { useSEO } from "../utils/seo";
@@ -242,6 +245,42 @@ function TestimonialsCarousel() {
 /* ═══════════════════════════════════════════════════════════
    HOME PAGE
 ═══════════════════════════════════════════════════════════ */
+/* Hero headline word that cycles through the range */
+const HERO_WORDS = ["Honey", "Turmeric", "Coriander"];
+
+function RotatingWord() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    // Keep it still for prerender/automation so the snapshot reads "Honey"
+    if (navigator.webdriver) return;
+    const t = window.setInterval(() => setIdx((i) => (i + 1) % HERO_WORDS.length), 2800);
+    return () => window.clearInterval(t);
+  }, []);
+
+  return (
+    <span className="relative inline-flex overflow-hidden align-bottom" style={{ paddingBottom: "0.08em" }}>
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={HERO_WORDS[idx]}
+          initial={{ y: "100%", opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: "-100%", opacity: 0 }}
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          className="inline-block italic"
+          style={{
+            background: "linear-gradient(120deg, #F3D57A, #D4AF37 55%, #E8C84A)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
+        >
+          {HERO_WORDS[idx]},
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
+
 export default function Home() {
   const navigate = useNavigate();
 
@@ -261,33 +300,6 @@ export default function Home() {
 
   const handleView = (product: ApiProduct) => navigate(`/product/${product.slug}`);
 
-
-  const productBenefits = [
-    {
-      icon: "🍯",
-      name: "Multi Flora Honey",
-      tagline: "Pure & Raw",
-      color: "from-amber-50 to-yellow-50",
-      border: "border-amber-100",
-      perks: ["Boosts Immunity", "Rich Antioxidants", "Natural Sweetener", "Aids Digestion"],
-    },
-    {
-      icon: "✨",
-      name: "Turmeric Powder",
-      tagline: "Golden Spice",
-      color: "from-orange-50 to-amber-50",
-      border: "border-orange-100",
-      perks: ["High Curcumin", "Anti-inflammatory", "Immunity Booster", "Daily Wellness"],
-    },
-    {
-      icon: "🌿",
-      name: "Coriander Powder",
-      tagline: "Aromatic Purity",
-      color: "from-green-50 to-emerald-50",
-      border: "border-green-100",
-      perks: ["Digestive Aid", "Rich Aroma", "Pure & Fresh", "Enhances Flavour"],
-    },
-  ];
 
   return (
     <main className="relative overflow-x-hidden bg-[#faf9f7]">
@@ -337,9 +349,12 @@ export default function Home() {
                 className="font-serif font-bold text-white mb-8"
                 style={{ fontSize: "clamp(2.6rem, 6vw, 5.2rem)", lineHeight: 1.05 }}
               >
-                Pure Honey,
-                <br />
-                From Nature.
+                <span className="sr-only">Pure Honey, From Nature.</span>
+                <span aria-hidden="true">
+                  Pure <RotatingWord />
+                  <br />
+                  From Nature.
+                </span>
               </motion.h1>
 
               <motion.div
@@ -389,6 +404,74 @@ export default function Home() {
               </motion.div>
             </div>
           </div>
+        </div>
+
+        {/* Floating featured-product card (desktop) */}
+        {featuredProducts[0] && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="hidden lg:block absolute right-10 xl:right-16 bottom-20 z-10"
+          >
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="relative"
+            >
+              <div className="absolute -top-12 -left-12 z-10">
+                <RotatingSeal size={96} center="🐝" text="FROM THE HIVE · TO YOUR HOME · " />
+              </div>
+              <Link
+                to={`/product/${featuredProducts[0].slug}`}
+                className="group flex items-center gap-4 w-[320px] p-3 pr-4 rounded-3xl"
+                style={{
+                  background: "rgba(255,255,255,0.14)",
+                  border: "1px solid rgba(255,255,255,0.25)",
+                  backdropFilter: "blur(16px) saturate(140%)",
+                  WebkitBackdropFilter: "blur(16px) saturate(140%)",
+                  boxShadow: "0 20px 50px rgba(0,0,0,0.25)",
+                }}
+              >
+                <div className="w-20 h-20 rounded-2xl bg-white/90 p-1.5 flex-shrink-0 overflow-hidden">
+                  <img
+                    src={featuredProducts[0].images[0]}
+                    alt=""
+                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "#F3D57A" }}>
+                    Bestseller
+                  </p>
+                  <p className="text-sm font-semibold text-white leading-snug line-clamp-2 mt-0.5">
+                    {featuredProducts[0].name.split("|")[0].trim()}
+                  </p>
+                  <p className="text-sm text-white/80 mt-1">
+                    ₹{featuredProducts[0].discountedPrice ?? featuredProducts[0].price}
+                    {featuredProducts[0].discountedPrice !== null && (
+                      <span className="ml-2 text-xs line-through text-white/50">₹{featuredProducts[0].price}</span>
+                    )}
+                  </p>
+                </div>
+                <span className="w-9 h-9 rounded-full bg-white flex items-center justify-center flex-shrink-0 transition-transform group-hover:translate-x-1" style={{ color: "#1a1208" }}>
+                  <FiArrowRight size={16} />
+                </span>
+              </Link>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Scroll cue */}
+        <div className="hidden md:flex absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex-col items-center gap-2 pointer-events-none">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-white/60">Scroll</span>
+          <span className="w-[22px] h-[34px] rounded-full border border-white/50 flex justify-center pt-1.5">
+            <motion.span
+              className="w-1 h-1.5 rounded-full bg-[#F3D57A]"
+              animate={{ y: [0, 10, 0], opacity: [1, 0.2, 1] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </span>
         </div>
       </section>
 
@@ -579,115 +662,19 @@ export default function Home() {
       <ComboPacks />
 
       {/* ════════════════════════════════════════════════════
-          4. PRODUCT BENEFITS
+          4. PRODUCT SPOTLIGHT — interactive
       ════════════════════════════════════════════════════ */}
-      <section className="relative py-24 bg-white overflow-hidden">
-        <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerContainer}
-            className="text-center mb-14"
-          >
-            <motion.span variants={fadeUp} custom={0} className="inline-block text-sm font-semibold text-amber-600 uppercase tracking-widest mb-4">
-              Nature's Best
-            </motion.span>
-            <motion.h2 variants={fadeUp} custom={0.1} className="font-serif font-bold text-brand-brown" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-              The Power of Each Product
-            </motion.h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {productBenefits.map((item, i) => (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{
-                  y: -10,
-                  scale: 1.02,
-                  rotateX: 3,
-                  rotateY: i === 0 ? -4 : i === 2 ? 4 : 0,
-                  boxShadow: "0 32px 64px rgba(0,0,0,0.10), 0 8px 24px rgba(212,175,55,0.14)",
-                }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5, ease: "easeOut" }}
-                style={{ transformPerspective: 900 }}
-                className={`relative p-8 rounded-3xl bg-gradient-to-br ${item.color} border ${item.border} cursor-default`}
-              >
-                {/* Hex icon container */}
-                <div className="mb-5 flex items-center gap-3">
-                  <div
-                    className="w-14 h-14 flex items-center justify-center flex-shrink-0"
-                    style={{
-                      clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
-                      background: "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06))",
-                      border: "1.5px solid rgba(212,175,55,0.3)",
-                      fontSize: "1.75rem",
-                    }}
-                  >
-                    {item.icon}
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: "#2D4A1E" }}>
-                      {item.tagline}
-                    </p>
-                    <h3 className="font-serif font-bold text-lg leading-tight" style={{ color: "#0f0a05" }}>
-                      {item.name}
-                    </h3>
-                  </div>
-                </div>
-
-                {/* Gold accent line */}
-                <div className="h-px mb-5" style={{ background: "linear-gradient(to right, rgba(212,175,55,0.3), transparent)" }} />
-
-                <ul className="space-y-2.5">
-                  {item.perks.map((perk) => (
-                    <li key={perk} className="flex items-center gap-2.5 text-sm" style={{ color: "rgba(15,10,5,0.65)" }}>
-                      <div
-                        className="w-5 h-5 flex items-center justify-center flex-shrink-0"
-                        style={{
-                          clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
-                          background: "rgba(45,74,30,0.12)",
-                        }}
-                      >
-                        <span style={{ color: "#2D4A1E", fontSize: "0.55rem", fontWeight: 900 }}>✓</span>
-                      </div>
-                      {perk}
-                    </li>
-                  ))}
-                </ul>
-
-                <Link to="/products">
-                  <motion.button
-                    whileHover={{ x: 4 }}
-                    className="mt-6 flex items-center gap-2 text-sm font-bold"
-                    style={{ color: "#2D4A1E" }}
-                  >
-                    Shop {item.name}
-                    <FiArrowRight size={14} />
-                  </motion.button>
-                </Link>
-
-                {/* Subtle corner hex decoration */}
-                <div
-                  className="absolute bottom-5 right-5 w-10 h-10 pointer-events-none opacity-10"
-                  style={{
-                    clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
-                    background: "#D4AF37",
-                  }}
-                />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <ProductSpotlight />
 
       {/* ════════════════════════════════════════════════════
           PRODUCT COMPARISON
       ════════════════════════════════════════════════════ */}
       <ProductComparison />
+
+      {/* ════════════════════════════════════════════════════
+          MANIFESTO — words light up on scroll
+      ════════════════════════════════════════════════════ */}
+      <Manifesto />
 
       {/* ════════════════════════════════════════════════════
           5. OUR STORY

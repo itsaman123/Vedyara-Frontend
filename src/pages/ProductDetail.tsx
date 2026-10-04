@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -19,6 +19,7 @@ import { products as localProducts, type Product } from "../data/products";
 import { useWishlist } from "../context/WishlistContext";
 import { ProductDetailSkeleton, ProductCardSkeleton } from "../components/Skeletons";
 import ProductCard from "../components/ProductCard";
+import RotatingSeal from "../components/RotatingSeal";
 import { AMAZON_STORE_URL, MEESHO_STORE_URL } from "../config/environment";
 import { useSEO } from "../utils/seo";
 
@@ -211,6 +212,138 @@ function RelatedProducts({
 }
 
 /* ─────────────────────────────────────────────────────────────
+   DAILY RITUALS — ways to use the product
+───────────────────────────────────────────────────────────── */
+type Ritual = { emoji: string; title: string; text: string };
+
+const rituals: Record<"honey" | "turmeric" | "coriander" | "spice", Ritual[]> = {
+  honey: [
+    { emoji: "☀️", title: "Morning warm water", text: "A spoonful in a glass of warm water, first thing in the day." },
+    { emoji: "🍵", title: "In your tea", text: "Stir in once the tea cools a little, so the flavour stays bright." },
+    { emoji: "🥣", title: "Over oats & fruit", text: "Drizzle over oats, muesli, curd or a bowl of cut fruit." },
+    { emoji: "🍞", title: "On warm toast", text: "Spread thin on toast or rotis for a quick, simple treat." },
+  ],
+  turmeric: [
+    { emoji: "🥛", title: "Golden milk", text: "Half a teaspoon in warm milk with a pinch of black pepper." },
+    { emoji: "🍛", title: "Dal & curries", text: "Add early to the tadka so the colour blooms in the oil." },
+    { emoji: "🍗", title: "Marinades", text: "Mix with curd, salt and chilli for paneer, veggies or meat." },
+    { emoji: "🥗", title: "Roasted veggies", text: "Toss with oil before roasting for colour and warmth." },
+  ],
+  coriander: [
+    { emoji: "🍛", title: "Curries & gravies", text: "Adds body and a mellow, citrusy depth to any masala." },
+    { emoji: "🥘", title: "Everyday sabzi", text: "A spoonful near the end lifts dry vegetable dishes." },
+    { emoji: "🌿", title: "Chutneys & raita", text: "Stir into chutneys, raita or buttermilk for aroma." },
+    { emoji: "🔥", title: "Spice rubs", text: "Blend with cumin and chilli for grills and tikkas." },
+  ],
+  spice: [
+    { emoji: "🍛", title: "Dal & curries", text: "Add to the tadka so the aroma blooms in the oil." },
+    { emoji: "🥘", title: "Everyday sabzi", text: "A spoonful lifts dry vegetable dishes." },
+    { emoji: "🍗", title: "Marinades", text: "Mix with curd and salt for paneer, veggies or meat." },
+    { emoji: "🔥", title: "Spice rubs", text: "Blend with other spices for grills and tikkas." },
+  ],
+};
+
+const ritualTints = ["#FFF5DC", "#EEF5E2", "#FCEBDD", "#F3EEE6"];
+
+function DailyRituals({ kind, name }: { kind: keyof typeof rituals; name: string }) {
+  const list = rituals[kind];
+  return (
+    <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+      <div className="text-center mb-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] mb-1.5" style={{ color: "#6B8E23" }}>
+          Daily rituals
+        </p>
+        <h2 className="font-serif text-2xl sm:text-[1.75rem] font-bold" style={{ color: INK }}>
+          Four simple ways to enjoy it
+        </h2>
+        <p className="text-sm mt-2" style={{ color: MUTED }}>
+          Little habits with {name}.
+        </p>
+      </div>
+
+      <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* dashed connector behind the cards (desktop) */}
+        <svg className="hidden lg:block absolute left-0 right-0 top-12 w-full h-8 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 10" aria-hidden="true">
+          <path d="M2 5 C 20 0, 30 10, 50 5 S 80 0, 98 5" fill="none" stroke="#D4AF37" strokeWidth="0.25" strokeDasharray="1 1.2" vectorEffect="non-scaling-stroke" />
+        </svg>
+
+        {list.map((r, i) => (
+          <motion.div
+            key={r.title}
+            initial={{ opacity: 0, y: 24, rotate: 0 }}
+            whileInView={{ opacity: 1, y: 0, rotate: i % 2 === 0 ? -1.5 : 1.5 }}
+            whileHover={{ rotate: 0, y: -6 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ delay: i * 0.08, duration: 0.45, ease: "easeOut" }}
+            className="relative rounded-3xl p-6 pt-7"
+            style={{ background: ritualTints[i % ritualTints.length], boxShadow: "0 10px 30px rgba(62,47,28,0.06)" }}
+          >
+            <span
+              className="absolute top-4 right-5 font-serif font-bold text-5xl leading-none"
+              style={{ color: "transparent", WebkitTextStroke: "1px rgba(62,47,28,0.15)" }}
+            >
+              {i + 1}
+            </span>
+            <span className="relative z-10 w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-2xl shadow-sm mb-5">
+              {r.emoji}
+            </span>
+            <h3 className="font-sans text-base font-semibold mb-1.5" style={{ color: INK }}>{r.title}</h3>
+            <p className="text-sm leading-6" style={{ color: MUTED }}>{r.text}</p>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   HONEY DRIP DIVIDER
+───────────────────────────────────────────────────────────── */
+// x in % of width, h in px (the SVG is 64px tall and stretches horizontally,
+// so drip widths are kept tiny in viewBox units to stay slim on screen)
+const drips = [
+  { x: 6, h: 22 }, { x: 14, h: 44 }, { x: 23, h: 16 }, { x: 33, h: 52 },
+  { x: 41, h: 26 }, { x: 52, h: 38 }, { x: 61, h: 18 }, { x: 70, h: 48 },
+  { x: 79, h: 24 }, { x: 88, h: 40 }, { x: 95, h: 20 },
+];
+
+function HoneyDrip({ background = "#F8F5F0" }: { background?: string }) {
+  return (
+    <div className="relative h-16 -mb-px" style={{ background }} aria-hidden="true">
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 64" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="drip-gold" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#E9C25A" />
+            <stop offset="1" stopColor="#C9961A" />
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="100" height="5" fill="url(#drip-gold)" />
+        {drips.map((d) => (
+          <path
+            key={d.x}
+            d={`M${d.x - 1.6} 4 C${d.x - 0.9} 7, ${d.x - 0.7} ${d.h - 7}, ${d.x - 0.7} ${d.h - 5} C${d.x - 0.7} ${d.h + 1}, ${d.x + 0.7} ${d.h + 1}, ${d.x + 0.7} ${d.h - 5} C${d.x + 0.7} ${d.h - 7}, ${d.x + 0.9} 7, ${d.x + 1.6} 4 Z`}
+            fill="url(#drip-gold)"
+          />
+        ))}
+      </svg>
+      {drips.filter((_, i) => i % 2 === 1).map((d, i) => (
+        <span
+          key={d.x}
+          className="honey-drop absolute w-2 h-2.5 rounded-full"
+          style={{
+            left: `calc(${d.x}% - 4px)`,
+            top: d.h - 2,
+            background: "#D4A12A",
+            borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%",
+            animation: `honeyDropFall 2.8s ease-in ${i * 0.7}s infinite`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
    PRODUCT DETAIL PAGE
 ───────────────────────────────────────────────────────────── */
 export default function ProductDetail() {
@@ -219,6 +352,8 @@ export default function ProductDetail() {
   const [zoom, setZoom] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const imgWrapRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   function handleImageMouseMove(e: React.MouseEvent<HTMLDivElement>) {
@@ -327,6 +462,18 @@ export default function ProductDetail() {
     }
   }
 
+  // Sticky buy bar: show once the main buttons have scrolled above the viewport
+  const productLoaded = !!product;
+  useEffect(() => {
+    const el = ctaRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setShowStickyBar(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [productLoaded]);
+
   /* ── Loading / error ── */
   if (isLoading) return <ProductDetailSkeleton />;
   if (isError || (!isLoading && !product)) {
@@ -376,6 +523,15 @@ export default function ProductDetail() {
     const sentenceEnd = cut.lastIndexOf(". ");
     return sentenceEnd > 80 ? cut.slice(0, sentenceEnd + 1) : `${cut.slice(0, cut.lastIndexOf(" "))}…`;
   })();
+
+  const lowerName = product.name.toLowerCase();
+  const ritualKind: keyof typeof rituals = isHoney
+    ? "honey"
+    : /turmeric|haldi/.test(lowerName)
+      ? "turmeric"
+      : /coriander|dhaniya/.test(lowerName)
+        ? "coriander"
+        : "spice";
 
   const stock = apiProduct?.stock;
   const outOfStock = apiProduct?.status === "out_of_stock" || stock === 0;
@@ -568,6 +724,15 @@ export default function ProductDetail() {
                   />
                 </AnimatePresence>
 
+                <div className="absolute bottom-3 left-3 z-20 pointer-events-none">
+                  <RotatingSeal
+                    size={84}
+                    center={isHoney ? "🍯" : "🌿"}
+                    text={isHoney ? "100% PURE · RAW · LAB TESTED · " : "STONE GROUND · NO ADDITIVES · "}
+                    color={isHoney ? "#9A7012" : "#3d6b1a"}
+                  />
+                </div>
+
                 {discount && (
                   <span
                     className="absolute top-3 left-3 z-20 px-2.5 py-1 rounded-md text-xs font-semibold text-white"
@@ -701,7 +866,7 @@ export default function ProductDetail() {
             </dl>
 
             {/* CTAs */}
-            <div className="mt-6 flex flex-col gap-2.5">
+            <div ref={ctaRef} className="mt-6 flex flex-col gap-2.5">
               <div className="flex gap-2.5">
                 <a
                   href={MEESHO_STORE_URL}
@@ -791,8 +956,14 @@ export default function ProductDetail() {
       </div>
 
       {/* ══════════════════════════════════════════
+          DAILY RITUALS
+      ══════════════════════════════════════════ */}
+      <DailyRituals kind={ritualKind} name={shortName} />
+
+      {/* ══════════════════════════════════════════
           RELATED PRODUCTS
       ══════════════════════════════════════════ */}
+      <HoneyDrip />
       <div style={{ background: "#F8F5F0" }}>
         <RelatedProducts
           currentId={apiProduct?._id}
@@ -836,6 +1007,61 @@ export default function ProductDetail() {
           </div>
         </div>
       )}
+
+      {/* ══════════════════════════════════════════
+          STICKY BUY BAR
+      ══════════════════════════════════════════ */}
+      <AnimatePresence>
+        {showStickyBar && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 320, damping: 32 }}
+            className="fixed bottom-0 left-0 right-0 z-30 px-3 pb-3 sm:px-6 sm:pb-5 pointer-events-none"
+          >
+            <div
+              className="pointer-events-auto max-w-3xl mx-auto flex items-center gap-3 rounded-2xl p-2.5 pr-3"
+              style={{
+                background: "rgba(255,255,255,0.94)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                border: `1px solid ${LINE}`,
+                boxShadow: "0 18px 50px rgba(42,31,18,0.18)",
+              }}
+            >
+              <img src={images[0]} alt="" className="w-12 h-12 rounded-xl object-contain bg-white flex-shrink-0" style={{ border: `1px solid ${LINE}` }} />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold truncate" style={{ color: INK }}>{shortName}</p>
+                <p className="text-sm" style={{ color: INK }}>
+                  <span className="font-semibold">{product.price}</span>
+                  {product.originalPrice && (
+                    <span className="ml-2 text-xs line-through" style={{ color: SUBTLE }}>{product.originalPrice}</span>
+                  )}
+                </p>
+              </div>
+              <a
+                href={AMAZON_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden sm:inline-flex items-center gap-1.5 h-10 px-4 rounded-xl text-sm font-semibold"
+                style={{ color: "#a35f00", border: "1px solid rgba(255,153,0,0.4)", background: "#FFFAF1" }}
+              >
+                Amazon <FiExternalLink size={14} />
+              </a>
+              <a
+                href={MEESHO_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl text-sm font-semibold text-white flex-shrink-0"
+                style={{ background: "#a30089" }}
+              >
+                Buy on Meesho <FiExternalLink size={14} />
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
