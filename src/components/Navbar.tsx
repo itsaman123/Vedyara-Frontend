@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiMenu, FiX, FiShoppingBag, FiHeart, FiUser, FiExternalLink } from "react-icons/fi";
 import { useCart } from "../context/CartContext";
@@ -16,6 +16,8 @@ const navLinks = [
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [overHero, setOverHero] = useState(false);
+  const { pathname } = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [barDismissed, setBarDismissed] = useState(
     () => sessionStorage.getItem("dev-bar-dismissed") === "1"
@@ -31,14 +33,24 @@ export default function Navbar() {
       rafId = requestAnimationFrame(() => {
         rafId = null;
         setIsScrolled(window.scrollY > 60);
+        // Glass navbar while it still sits over the home video hero
+        const hero = document.getElementById("home-hero");
+        setOverHero(!!hero && hero.getBoundingClientRect().bottom > 80);
       });
     };
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
       if (rafId !== null) cancelAnimationFrame(rafId);
     };
-  }, []);
+  }, [pathname]);
+
+  const glass = pathname === "/" && overHero && !isMobileOpen;
+  const ink = glass ? "#FFFFFF" : "#3E2F1C";
+  const chipBg = glass ? "rgba(255,255,255,0.14)" : "rgba(62,47,28,0.06)";
 
   // Close mobile menu on resize
   useEffect(() => {
@@ -65,7 +77,14 @@ export default function Navbar() {
         transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
         className="fixed top-0 left-0 right-0 z-40 transition-all duration-400"
         style={
-          isScrolled
+          glass
+            ? {
+                background: "linear-gradient(to bottom, rgba(15,10,5,0.35), rgba(15,10,5,0.12))",
+                backdropFilter: "blur(14px) saturate(140%)",
+                WebkitBackdropFilter: "blur(14px) saturate(140%)",
+                boxShadow: "0 1px 0 rgba(255,255,255,0.14)",
+              }
+            : isScrolled
             ? {
                 background: "rgba(255,255,255,0.97)",
                 backdropFilter: "blur(20px)",
@@ -148,7 +167,7 @@ export default function Navbar() {
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 <LogoBrand
-                  variant="dark"
+                  variant={glass ? "light" : "dark"}
                   height={80}
                 />
               </motion.div>
@@ -167,13 +186,15 @@ export default function Navbar() {
                     }`
                   }
                   style={({ isActive }) => ({
-                    color: isActive ? "#3E2F1C" : "rgba(62,47,28,0.6)",
+                    color: glass
+                      ? isActive ? "#FFFFFF" : "rgba(255,255,255,0.78)"
+                      : isActive ? "#3E2F1C" : "rgba(62,47,28,0.6)",
                     ...(isActive
                       ? {
-                          background: "rgba(212,175,55,0.14)",
+                          background: glass ? "rgba(255,255,255,0.16)" : "rgba(212,175,55,0.14)",
                           padding: "4px 12px",
                           borderRadius: "999px",
-                          border: "1px solid rgba(212,175,55,0.28)",
+                          border: glass ? "1px solid rgba(255,255,255,0.28)" : "1px solid rgba(212,175,55,0.28)",
                         }
                       : {}),
                   })}
@@ -194,8 +215,8 @@ export default function Navbar() {
                   className="relative p-2 rounded-full transition-colors"
                   aria-label="My Profile"
                   style={{
-                    background: "rgba(62,47,28,0.06)",
-                    color: "#3E2F1C",
+                    background: chipBg,
+                    color: ink,
                   }}
                 >
                   <FiUser size={20} aria-hidden="true" />
@@ -208,8 +229,8 @@ export default function Navbar() {
                   className="relative p-2 rounded-full transition-colors"
                   aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ""}`}
                   style={{
-                    background: "rgba(62,47,28,0.06)",
-                    color: "#3E2F1C",
+                    background: chipBg,
+                    color: ink,
                   }}
                 >
                   <FiHeart size={20} aria-hidden="true" />
@@ -227,8 +248,8 @@ export default function Navbar() {
                   className="relative p-2 rounded-full transition-colors"
                   aria-label={`Shopping cart${cartCount > 0 ? `, ${cartCount} items` : ""}`}
                   style={{
-                    background: "rgba(62,47,28,0.06)",
-                    color: "#3E2F1C",
+                    background: chipBg,
+                    color: ink,
                   }}
                 >
                   <FiShoppingBag size={20} aria-hidden="true" />
@@ -259,8 +280,8 @@ export default function Navbar() {
               aria-label={isMobileOpen ? "Close menu" : "Open menu"}
               className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl transition-colors duration-300 focus:outline-none"
               style={{
-                background: "rgba(62,47,28,0.07)",
-                color: "#3E2F1C",
+                background: glass ? "rgba(255,255,255,0.14)" : "rgba(62,47,28,0.07)",
+                color: ink,
               }}
             >
               <AnimatePresence mode="wait" initial={false}>
@@ -292,7 +313,7 @@ export default function Navbar() {
 
         {/* Gold underline accent on scroll */}
         <AnimatePresence>
-          {isScrolled && (
+          {isScrolled && !glass && (
             <motion.div
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}

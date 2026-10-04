@@ -295,7 +295,7 @@ export default function Home() {
       {/* ════════════════════════════════════════════════════
           1. HERO SECTION — Full-bleed video
       ════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden h-[88vh] md:h-screen min-h-[560px] bg-[#0f0a05]">
+      <section id="home-hero" className="relative overflow-hidden h-[88vh] md:h-screen min-h-[560px] bg-[#0f0a05]">
         <video
           src={HeroVideo}
           poster={HeroBanner}
@@ -346,23 +346,45 @@ export default function Home() {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25, duration: 0.5, ease: "easeOut" }}
+                className="flex flex-nowrap items-center gap-5 sm:gap-6"
               >
-                <Link to="/products">
-                  <motion.button
-                    whileHover={{ scale: 1.03, y: -2 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="flex items-center gap-2.5 rounded-xl font-bold"
-                    style={{
-                      background: "linear-gradient(135deg, #D4AF37, #e8c84a)",
-                      color: "#0f0a05",
-                      padding: "14px 30px",
-                      fontSize: "0.875rem",
-                      boxShadow: "0 8px 28px rgba(212,175,55,0.35)",
-                    }}
-                  >
-                    Shop Now
-                    <FiArrowRight size={15} />
-                  </motion.button>
+                {/* Primary — cream pill, honey fill sweeps in on hover */}
+                <Link
+                  to="/products"
+                  className="group relative inline-flex flex-shrink-0 items-center gap-2 overflow-hidden whitespace-nowrap rounded-full font-medium uppercase"
+                  style={{
+                    background: "#FBF6EC",
+                    color: "#1a1208",
+                    padding: "10px 20px",
+                    fontSize: "0.68rem",
+                    letterSpacing: "0.16em",
+                    boxShadow: "0 6px 24px rgba(0,0,0,0.2)",
+                  }}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 -translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-0"
+                    style={{ background: "linear-gradient(120deg, #D4AF37, #e8c84a)" }}
+                  />
+                  <span className="relative sm:hidden">Shop Now</span>
+                  <span className="relative hidden sm:inline">Shop the Collection</span>
+                  <FiArrowRight
+                    size={13}
+                    className="relative transition-transform duration-500 group-hover:translate-x-1"
+                  />
+                </Link>
+
+                {/* Secondary — quiet text link */}
+                <Link
+                  to="/about"
+                  className="group relative flex-shrink-0 whitespace-nowrap text-white/85 hover:text-white uppercase transition-colors duration-300"
+                  style={{ fontSize: "0.68rem", letterSpacing: "0.16em", paddingBottom: 3 }}
+                >
+                  Our Story
+                  <span
+                    aria-hidden="true"
+                    className="absolute left-0 bottom-0 h-px w-full origin-left scale-x-50 bg-white/70 transition-transform duration-500 group-hover:scale-x-100"
+                  />
                 </Link>
               </motion.div>
             </div>
