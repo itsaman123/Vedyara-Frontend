@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import HeroBanner from "../assets/hero-banner.png";
+import HeroVideo from "../assets/hero-vid.mp4";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import {
@@ -8,7 +9,6 @@ import {
   FiShoppingBag,
   FiPackage,
   FiShield,
-  FiDroplet,
   FiChevronLeft,
   FiChevronRight,
 } from "react-icons/fi";
@@ -25,7 +25,6 @@ import ProductComparison from "../components/ProductComparison";
 import ComboPacks from "../components/ComboPacks";
 import EducationalSection from "../components/EducationalSection";
 import ProductCard from "../components/ProductCard";
-import HoneycombScene from "../components/HoneycombScene";
 import HoneyVideoCarousel from "../components/HoneyVideoCarousel";
 import { fadeUp, staggerContainer } from "../utils/animations";
 import { ProductCardSkeleton } from "../components/Skeletons";
@@ -262,28 +261,6 @@ export default function Home() {
 
   const handleView = (product: ApiProduct) => navigate(`/product/${product.slug}`);
 
-  const heroFeatures = [
-    {
-      icon: <FaLeaf size={18} style={{ color: "#2D4A1E" }} />,
-      title: "Pure & Natural",
-      desc: "Made with 100% natural ingredients.",
-    },
-    {
-      icon: <FaLeaf size={18} style={{ color: "#2D4A1E" }} />,
-      title: "Rooted in Tradition",
-      desc: "Inspired by ancient wisdom, crafted for today.",
-    },
-    {
-      icon: <FiDroplet size={18} style={{ color: "#2D4A1E" }} />,
-      title: "No Harmful Chemicals",
-      desc: "Free from preservatives & synthetic additives.",
-    },
-    {
-      icon: <FiPackage size={18} style={{ color: "#2D4A1E" }} />,
-      title: "Sustainable & Ethical",
-      desc: "Good for you, good for the Earth.",
-    },
-  ];
 
   const productBenefits = [
     {
@@ -316,249 +293,78 @@ export default function Home() {
     <main className="relative overflow-x-hidden bg-[#faf9f7]">
 
       {/* ════════════════════════════════════════════════════
-          1. HERO SECTION — 3D Honeycomb Background
+          1. HERO SECTION — Full-bleed video
       ════════════════════════════════════════════════════ */}
-      <section
-        className="relative overflow-hidden"
-        style={{ backgroundColor: "#F4EDE0" }}
-      >
-        {/* LCP image — real <img> so browser can prioritise it */}
-        <img
-          src={HeroBanner}
-          alt=""
+      <section className="relative overflow-hidden h-[88vh] md:h-screen min-h-[560px] bg-[#0f0a05]">
+        <video
+          src={HeroVideo}
+          poster={HeroBanner}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
           aria-hidden="true"
-          fetchPriority="high"
-          decoding="async"
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{ zIndex: 0, objectPosition: "60% center" }}
         />
 
-        {/* ── THREE.JS HONEYCOMB — sits between image and gradient ── */}
-        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1, opacity: 0.65 }}>
-          <HoneycombScene />
-        </div>
-
-        {/* Desktop gradient — left-to-right cream fade (md+) */}
+        {/* Overlay — darkens bottom-left so text stays legible */}
         <div
-          className="absolute inset-0 pointer-events-none hidden md:block"
+          className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "linear-gradient(to right, #F4EDE0 0%, #F4EDE0 18%, rgba(244,237,224,0.92) 32%, rgba(244,237,224,0.55) 50%, rgba(244,237,224,0.12) 66%, transparent 80%)",
-            zIndex: 2,
+              "linear-gradient(to top, rgba(15,10,5,0.75) 0%, rgba(15,10,5,0.3) 45%, rgba(15,10,5,0.15) 100%)",
           }}
         />
 
-        {/* Mobile gradient */}
-        <div
-          className="absolute inset-0 pointer-events-none md:hidden"
-          style={{
-            background:
-              "linear-gradient(to top, #F4EDE0 0%, #F4EDE0 60%, rgba(244,237,224,0.92) 75%, rgba(244,237,224,0.6) 87%, rgba(244,237,224,0.15) 95%, transparent 100%)",
-            zIndex: 2,
-          }}
-        />
-
-        <div className="relative flex items-end md:items-center min-h-[78vh] md:min-h-[92vh]" style={{ zIndex: 3 }}>
-          <div className="w-full px-5 sm:px-8 lg:px-14 xl:px-20 pt-24 pb-10 md:pb-36">
-            <div className="max-w-[520px]">
-
-              {/* ── Hexagonal badge ── */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                className="inline-flex items-center gap-3 mb-8"
+        <div className="relative z-10 h-full flex items-end">
+          <div className="w-full px-5 sm:px-8 lg:px-14 xl:px-20 pb-16 md:pb-24">
+            <div className="max-w-[640px]">
+              <motion.span
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="inline-block mb-4 text-xs font-semibold uppercase tracking-[0.25em]"
+                style={{ color: "#e8c84a" }}
               >
-                {/* Hex icon */}
-                <div
-                  className="w-9 h-9 flex items-center justify-center text-base flex-shrink-0"
-                  style={{
-                    clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
-                    background: "linear-gradient(135deg, #D4AF37, #e8c84a)",
-                    boxShadow: "0 0 18px rgba(212,175,55,0.5)",
-                  }}
-                >
-                  🍯
-                </div>
-                <span
-                  className="font-bold uppercase tracking-widest text-[0.6rem]"
-                  style={{
-                    color: "#2D4A1E",
-                    background: "rgba(45,74,30,0.07)",
-                    padding: "5px 12px",
-                    borderRadius: 99,
-                    border: "1px solid rgba(45,74,30,0.18)",
-                  }}
-                >
-                  Rooted in Ancient Wisdom
-                </span>
-              </motion.div>
+                Rooted in Ancient Wisdom
+              </motion.span>
 
-              {/* ── H1 ── */}
               <motion.h1
                 initial={{ opacity: 0, y: 22 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-                className="font-serif font-bold mb-5"
-                style={{ fontSize: "clamp(2.6rem, 5vw, 4.8rem)", lineHeight: 1.08 }}
+                className="font-serif font-bold text-white mb-8"
+                style={{ fontSize: "clamp(2.6rem, 6vw, 5.2rem)", lineHeight: 1.05 }}
               >
-                <span style={{ color: "#0f0a05" }}>Pure </span>
-                <span
-                  style={{
-                    background: "linear-gradient(135deg, #b8961f 0%, #D4AF37 50%, #e8c84a 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
-                >
-                  Honey
-                </span>
+                Pure Honey,
                 <br />
-                <span style={{ color: "#2D4A1E" }}>From Nature.</span>
+                From Nature.
               </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.55, ease: "easeOut" }}
-                className="mb-10"
-                style={{ color: "rgba(15,10,5,0.58)", fontSize: "0.975rem", lineHeight: 1.75, maxWidth: 420 }}
-              >
-                Thoughtfully crafted products inspired by timeless traditions.
-                Pure Multi Flora Honey, Turmeric & Coriander Powder — raw, unprocessed, lab-tested.
-              </motion.p>
-
-              {/* ── Honey drip accent bar ── */}
-              <motion.div
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 0.25, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                className="h-0.5 rounded-full mb-8 origin-left"
-                style={{ background: "linear-gradient(to right, #D4AF37, rgba(212,175,55,0.1))", width: 200 }}
-              />
 
               <motion.div
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
-                className="flex flex-wrap gap-4"
+                transition={{ delay: 0.25, duration: 0.5, ease: "easeOut" }}
               >
                 <Link to="/products">
                   <motion.button
                     whileHover={{ scale: 1.03, y: -2 }}
                     whileTap={{ scale: 0.97 }}
-                    className="flex items-center gap-2.5 rounded-xl font-bold text-white"
+                    className="flex items-center gap-2.5 rounded-xl font-bold"
                     style={{
-                      background: "linear-gradient(135deg, #1a3010, #2D4A1E)",
+                      background: "linear-gradient(135deg, #D4AF37, #e8c84a)",
+                      color: "#0f0a05",
                       padding: "14px 30px",
                       fontSize: "0.875rem",
-                      boxShadow: "0 8px 28px rgba(45,74,30,0.35)",
+                      boxShadow: "0 8px 28px rgba(212,175,55,0.35)",
                     }}
                   >
                     Shop Now
                     <FiArrowRight size={15} />
                   </motion.button>
                 </Link>
-                <Link to="/products">
-                  <motion.button
-                    whileHover={{ scale: 1.03, y: -2 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="rounded-xl font-semibold transition-all duration-200"
-                    style={{
-                      background: "rgba(255,255,255,0.85)",
-                      backdropFilter: "blur(8px)",
-                      color: "#0f0a05",
-                      border: "1.5px solid rgba(212,175,55,0.4)",
-                      padding: "14px 30px",
-                      fontSize: "0.875rem",
-                    }}
-                  >
-                    Explore Products
-                  </motion.button>
-                </Link>
               </motion.div>
-
-            </div>
-          </div>
-        </div>
-
-        {/* ── Floating testimonial card — desktop only ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 28, scale: 0.92 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ delay: 0.9, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute hidden lg:block"
-          style={{ bottom: "120px", right: "clamp(2rem, 8vw, 5rem)", zIndex: 3, width: "272px" }}
-        >
-          <div
-            className="rounded-2xl px-5 py-4"
-            style={{
-              background: "rgba(255,255,255,0.9)",
-              backdropFilter: "blur(20px)",
-              WebkitBackdropFilter: "blur(20px)",
-              boxShadow: "0 20px 60px rgba(62,47,28,0.13), 0 4px 18px rgba(0,0,0,0.08)",
-              border: "1px solid rgba(212,175,55,0.22)",
-            }}
-          >
-            <div className="flex gap-0.5 mb-2.5">
-              {[...Array(5)].map((_, i) => (
-                <span key={i} style={{ color: "#D4AF37", fontSize: "13px" }}>★</span>
-              ))}
-            </div>
-            <p className="text-sm leading-relaxed italic mb-3" style={{ color: "rgba(62,47,28,0.72)" }}>
-              "Best raw honey I've ever had. You can literally smell the forest in every spoon."
-            </p>
-            <div className="flex items-center gap-2.5">
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0"
-                style={{ background: "linear-gradient(135deg, #D4AF37, #e8c84a)", color: "#3E2F1C" }}
-              >
-                P
-              </div>
-              <div>
-                <p className="text-xs font-bold" style={{ color: "#3E2F1C" }}>Priya S.</p>
-                <p className="text-[10px]" style={{ color: "rgba(62,47,28,0.42)" }}>Bangalore · Verified Buyer</p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Feature strip — normal flow on mobile so it can't overlap hero text; floats over the hero on desktop where there's room */}
-        <div className="relative mt-8 md:mt-0 md:absolute md:bottom-0 md:left-0 md:right-0 px-5 sm:px-8 lg:px-14 xl:px-20" style={{ zIndex: 3 }}>
-          <div
-            className="rounded-t-3xl"
-            style={{
-              background: "rgba(255,255,255,0.96)",
-              backdropFilter: "blur(12px)",
-              boxShadow: "0 -4px 30px rgba(0,0,0,0.06)",
-              borderTop: "1px solid rgba(212,175,55,0.15)",
-            }}
-          >
-            <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-stone-100">
-              {heroFeatures.map((f, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + i * 0.07, duration: 0.4, ease: "easeOut" }}
-                  className={`flex items-start gap-3 px-4 py-5 md:px-6 md:py-6 ${i >= 2 ? "hidden lg:flex" : ""}`}
-                >
-                  <div
-                    className="w-10 h-10 flex items-center justify-center flex-shrink-0 mt-0.5"
-                    style={{
-                      clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
-                      background: "linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.08))",
-                      border: "1.5px solid rgba(212,175,55,0.2)",
-                    }}
-                  >
-                    {f.icon}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm mb-1" style={{ color: "#0f0a05" }}>{f.title}</p>
-                    <p className="text-xs leading-relaxed" style={{ color: "rgba(15,10,5,0.48)" }}>{f.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
             </div>
           </div>
         </div>
