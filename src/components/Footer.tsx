@@ -22,6 +22,15 @@ const quickLinks = [
   { label: "Shop", to: "/products" },
   { label: "About Us", to: "/about" },
   { label: "Contact", to: "/contact" },
+  { label: "Bulk Order", to: "/bulk-order" },
+  { label: "Track Order", to: "/track-order" },
+  { label: "Returns & Cancellations", to: "/returns-cancellations" },
+];
+
+const legalLinks = [
+  { label: "Privacy Policy", to: "/privacy-policy" },
+  { label: "Terms & Conditions", to: "/terms-and-conditions" },
+  { label: "Returns", to: "/returns-cancellations" },
 ];
 
 const products = [
@@ -122,14 +131,14 @@ export default function Footer() {
 
           {/* Right: CTAs */}
           <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0 w-full md:w-auto">
-            <a
-              href="mailto:vedyaraorg@gmail.com?subject=Bulk%20Order%20Enquiry"
+            <Link
+              to="/bulk-order"
               className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97]"
               style={{ background: "#2D4A1E", color: "#ffffff" }}
             >
-              <FiMail size={15} />
-              Email for Quote
-            </a>
+              <FiPackage size={15} />
+              Request a Quote
+            </Link>
             <a
               href="https://wa.me/919509628400?text=Hi%20Vedyara%2C%20I%20am%20interested%20in%20bulk%2Fwholesale%20orders.%20Please%20share%20your%20B2B%20pricing."
               target="_blank"
@@ -386,13 +395,13 @@ export default function Footer() {
               >
                 Custom MOQs, private labelling &amp; wholesale pricing available for businesses.
               </p>
-              <a
-                href="mailto:vedyaraorg@gmail.com?subject=Bulk%20Order%20Enquiry"
+              <Link
+                to="/bulk-order"
                 className="inline-flex items-center gap-1.5 text-xs font-semibold transition-colors duration-200 hover:opacity-80"
                 style={{ color: "#D4AF37" }}
               >
                 Enquire Now <FiArrowRight size={11} />
-              </a>
+              </Link>
             </div>
           </motion.div>
 
@@ -526,11 +535,11 @@ export default function Footer() {
               . All rights reserved. Made with 🌿 for a healthier India.
             </p>
 
-            <div className="flex items-center gap-4">
-              {(["Privacy Policy", "Terms of Use", "Sitemap"] as const).map((item, i, arr) => (
-                <span key={item} className="flex items-center gap-4">
-                  <a
-                    href="#"
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+              {legalLinks.map(({ label, to }, i, arr) => (
+                <span key={label} className="flex items-center gap-4">
+                  <Link
+                    to={to}
                     className="transition-colors duration-200"
                     style={{ color: "rgba(248,245,240,0.27)" }}
                     onMouseEnter={(e) =>
@@ -540,8 +549,8 @@ export default function Footer() {
                       ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(248,245,240,0.27)")
                     }
                   >
-                    {item}
-                  </a>
+                    {label}
+                  </Link>
                   {i < arr.length - 1 && (
                     <span style={{ color: "rgba(248,245,240,0.1)" }}>·</span>
                   )}

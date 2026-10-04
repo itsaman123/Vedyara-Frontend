@@ -118,3 +118,35 @@ export const getMyOrders = async () => {
   }
   return payload.data;
 };
+
+export type TrackedOrder = {
+  orderNumber: string;
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  paymentStatus: "awaiting" | "paid" | "refunded" | "failed";
+  paymentMethod: "razorpay" | "cod";
+  amount: number;
+  itemsCount: number;
+  city: string | null;
+  createdAt: string;
+  updatedAt: string;
+  items: {
+    name: string;
+    slug: string | null;
+    image: string | null;
+    unit: string | null;
+    quantity: number;
+    price: number;
+  }[];
+};
+
+export const trackOrder = async (orderNumber: string, email: string) => {
+  const url = new URL(`${API_BASE_URL}/api/v1/orders/track`);
+  url.searchParams.set("orderNumber", orderNumber.trim());
+  url.searchParams.set("email", email.trim());
+  const response = await fetch(url.toString());
+  const payload = (await response.json()) as ApiResponse<TrackedOrder>;
+  if (!response.ok || !payload.success) {
+    throw new Error(payload.message || "Could not find this order");
+  }
+  return payload.data;
+};

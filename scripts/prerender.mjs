@@ -18,7 +18,17 @@ const BASE_URL = `http://localhost:${PORT}`;
 const API_BASE_URL = "https://vedyara-backend.onrender.com";
 const DIST_DIR = path.resolve("dist");
 
-const staticRoutes = ["/", "/products", "/about", "/contact"];
+const staticRoutes = [
+  "/",
+  "/products",
+  "/about",
+  "/contact",
+  "/bulk-order",
+  "/track-order",
+  "/returns-cancellations",
+  "/privacy-policy",
+  "/terms-and-conditions",
+];
 
 async function fetchProductSlugs() {
   const slugs = [];

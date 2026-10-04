@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ProductCardSkeleton, ProductListRowSkeleton } from "../components/Skeletons";
 import ProductCard from "../components/ProductCard";
@@ -182,8 +182,23 @@ const CategoryPill = ({
 ═══════════════════════════════════════════════════════════ */
 export default function Products() {
   const navigate = useNavigate();
-  const [activeCategory, setActiveCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  // Category and search live in the URL so the navbar can link to them
+  // (e.g. /products?category=honey, /products?search=turmeric).
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeCategory = searchParams.get("category") || "all";
+  const searchQuery = searchParams.get("search") || "";
+  const updateParam = (key: string, value: string, empty: string) =>
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (!value || value === empty) next.delete(key);
+        else next.set(key, value);
+        return next;
+      },
+      { replace: true },
+    );
+  const setActiveCategory = (id: string) => updateParam("category", id, "all");
+  const setSearchQuery = (q: string) => updateParam("search", q, "");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState<"default" | "price-asc" | "price-desc">("default");
 

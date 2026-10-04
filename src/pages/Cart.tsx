@@ -321,10 +321,10 @@ const Cart: React.FC = () => {
         <p className="text-xs" style={{ color: "rgba(255,255,255,0.18)" }}>
           Questions?{" "}
           <a
-            href="mailto:hello@vedyara.in"
+            href="mailto:vedyaraorg@gmail.com"
             style={{ color: "rgba(212,175,55,0.5)" }}
           >
-            hello@vedyara.in
+            vedyaraorg@gmail.com
           </a>
         </p>
       </div>

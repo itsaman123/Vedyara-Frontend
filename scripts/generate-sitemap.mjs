@@ -14,6 +14,11 @@ const staticRoutes = [
   { loc: "/products", changefreq: "weekly", priority: "0.9" },
   { loc: "/about", changefreq: "monthly", priority: "0.7" },
   { loc: "/contact", changefreq: "monthly", priority: "0.6" },
+  { loc: "/bulk-order", changefreq: "monthly", priority: "0.6" },
+  { loc: "/track-order", changefreq: "yearly", priority: "0.4" },
+  { loc: "/returns-cancellations", changefreq: "yearly", priority: "0.3" },
+  { loc: "/privacy-policy", changefreq: "yearly", priority: "0.3" },
+  { loc: "/terms-and-conditions", changefreq: "yearly", priority: "0.3" },
 ];
 
 async function fetchAllProducts() {

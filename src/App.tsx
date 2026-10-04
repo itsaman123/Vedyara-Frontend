@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -12,6 +12,7 @@ initClarity();
 import { AnimatePresence, motion } from "framer-motion";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import Loader from "./components/Loader";
 import { Toaster } from "react-hot-toast";
 
 /* ── Home is eager — it's the LCP page ── */
@@ -27,6 +28,11 @@ const Wishlist    = lazy(() => import("./pages/Wishlist"));
 const Checkout    = lazy(() => import("./pages/Checkout"));
 const Profile             = lazy(() => import("./pages/Profile"));
 const OrderConfirmation   = lazy(() => import("./pages/OrderConfirmation"));
+const BulkOrder           = lazy(() => import("./pages/BulkOrder"));
+const TrackOrder          = lazy(() => import("./pages/TrackOrder"));
+const ReturnsPolicy       = lazy(() => import("./pages/ReturnsPolicy"));
+const PrivacyPolicy       = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsConditions     = lazy(() => import("./pages/TermsConditions"));
 
 /* ── Admin chunk (large, rarely visited) ── */
 import "./admin/admin.css";
@@ -95,6 +101,11 @@ function AnimatedRoutes() {
         <Route path="/order-confirmation"    element={<PageWrap><Suspense fallback={<PageSkeleton />}><OrderConfirmation /></Suspense></PageWrap>} />
         <Route path="/orders"     element={<PageWrap><Suspense fallback={<PageSkeleton />}><Profile /></Suspense></PageWrap>} />
         <Route path="/profile"    element={<PageWrap><Suspense fallback={<PageSkeleton />}><Profile /></Suspense></PageWrap>} />
+        <Route path="/bulk-order"            element={<PageWrap><Suspense fallback={<PageSkeleton />}><BulkOrder /></Suspense></PageWrap>} />
+        <Route path="/track-order"           element={<PageWrap><Suspense fallback={<PageSkeleton />}><TrackOrder /></Suspense></PageWrap>} />
+        <Route path="/returns-cancellations" element={<PageWrap><Suspense fallback={<PageSkeleton />}><ReturnsPolicy /></Suspense></PageWrap>} />
+        <Route path="/privacy-policy"        element={<PageWrap><Suspense fallback={<PageSkeleton />}><PrivacyPolicy /></Suspense></PageWrap>} />
+        <Route path="/terms-and-conditions"  element={<PageWrap><Suspense fallback={<PageSkeleton />}><TermsConditions /></Suspense></PageWrap>} />
         <Route path="*"           element={<PageWrap><NotFound /></PageWrap>} />
       </Routes>
     </AnimatePresence>
@@ -168,12 +179,39 @@ function RouteScrollToTop() {
   return null;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Intro splash — animated logo on the first page load.
+   Skipped under automation (prerender / Playwright) so the
+   overlay never gets baked into static HTML.
+───────────────────────────────────────────────────────────── */
+const SPLASH_MS = 3000;
+
+function useIntroSplash() {
+  const [show, setShow] = useState(
+    () => !navigator.webdriver && !window.location.pathname.startsWith("/admin"),
+  );
+
+  useEffect(() => {
+    if (!show) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const t = setTimeout(() => setShow(false), SPLASH_MS);
+    return () => {
+      clearTimeout(t);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [show]);
+
+  return show;
+}
+
 /* ═══════════════════════════════════════════════════════════
    LAYOUT WRAPPER
 ═══════════════════════════════════════════════════════════ */
 function AppShell() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
+  const showSplash = useIntroSplash();
 
   if (isAdmin) {
     return (
@@ -197,6 +235,7 @@ function AppShell() {
 
   return (
     <div className="relative flex flex-col min-h-screen" style={{ zIndex: 1 }}>
+      <Loader isLoading={showSplash} />
       <Navbar />
       <main className="flex-1">
         <AnimatedRoutes />
