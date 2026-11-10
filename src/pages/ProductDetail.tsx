@@ -13,10 +13,13 @@ import {
   FiRefreshCw,
   FiPackage,
   FiArrowRight,
+  FiShoppingBag,
 } from "react-icons/fi";
-import { useProduct, useProducts, type Product as ApiProduct } from "../api/productApi";
+import { availableStock, useProduct, useProducts, type Product as ApiProduct } from "../api/productApi";
 import { products as localProducts, type Product } from "../data/products";
 import { useWishlist } from "../context/WishlistContext";
+import { useCart } from "../context/CartContext";
+import QuantityStepper from "../components/QuantityStepper";
 import { ProductDetailSkeleton, ProductCardSkeleton } from "../components/Skeletons";
 import ProductCard from "../components/ProductCard";
 import RotatingSeal from "../components/RotatingSeal";
@@ -354,13 +357,16 @@ function HoneyDrip({ background = "#F8F5F0" }: { background?: string }) {
 ───────────────────────────────────────────────────────────── */
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [qty, setQty] = useState(1);
   const [zoom, setZoom] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const imgWrapRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart();
 
   function handleImageMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     const rect = imgWrapRef.current?.getBoundingClientRect();
@@ -402,7 +408,8 @@ export default function ProductDetail() {
     } as Product;
   }, [localProduct, apiProduct]);
 
-  const liked    = product ? isInWishlist(product.id as string) : false;
+  // Static fallback products have no database id, so only API products can be bought here
+  const liked    = apiProduct ? isInWishlist(apiProduct._id) : false;
   // Category casing varies in the admin data ("honey" vs "Honey")
   const categoryKey = product?.category?.toLowerCase() ?? "";
   const isHoney  = categoryKey === "honey";
@@ -453,6 +460,11 @@ export default function ProductDetail() {
         }
       : undefined,
   });
+
+  function buyNow() {
+    if (!apiProduct) return;
+    navigate(`/checkout?buy=${encodeURIComponent(apiProduct.slug)}&qty=${qty}`);
+  }
 
   async function handleShare() {
     const url = window.location.href;
@@ -539,8 +551,9 @@ export default function ProductDetail() {
         ? "coriander"
         : "spice";
 
-  const stock = apiProduct?.stock;
-  const outOfStock = apiProduct?.status === "out_of_stock" || stock === 0;
+  const maxQty = apiProduct ? availableStock(apiProduct) : null;
+  const stock = maxQty ?? undefined;
+  const outOfStock = maxQty === 0;
   const stockLabel = outOfStock
     ? { text: "Out of stock", bg: "rgba(192,57,43,0.08)", color: "#a3311f" }
     : stock !== undefined && stock < 10
@@ -894,50 +907,95 @@ export default function ProductDetail() {
             </dl>
 
             {/* CTAs */}
-            <div ref={ctaRef} className="mt-6 flex flex-col gap-2.5">
-              <div className="flex gap-2.5">
-                <a
-                  href={MEESHO_STORE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl font-semibold text-[15px] text-white transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
-                  style={{ background: "#a30089", boxShadow: "0 8px 22px rgba(163,0,137,0.25)" }}
-                >
-                  Buy on Meesho <FiExternalLink size={16} />
-                </a>
-                <button
-                  onClick={() => toggleWishlist(product as never)}
-                  aria-label={liked ? "Remove from wishlist" : "Add to wishlist"}
-                  className="w-12 h-12 flex items-center justify-center rounded-xl border transition-colors"
-                  style={{
-                    borderColor: liked ? "#c0392b" : "rgba(62,47,28,0.15)",
-                    background: liked ? "rgba(192,57,43,0.06)" : "transparent",
-                    color: liked ? "#c0392b" : MUTED,
-                  }}
-                >
-                  <FiHeart size={18} fill={liked ? "#c0392b" : "transparent"} />
-                </button>
-                <button
-                  onClick={handleShare}
-                  aria-label="Share"
-                  className="w-12 h-12 flex items-center justify-center rounded-xl border transition-colors hover:bg-black/[0.02]"
-                  style={{ borderColor: "rgba(62,47,28,0.15)", color: MUTED }}
-                >
-                  <FiShare2 size={17} />
-                </button>
-              </div>
-              <a
-                href={AMAZON_STORE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 h-12 rounded-xl font-semibold text-[15px] transition-colors hover:bg-[#fff4e0]"
-                style={{ color: "#a35f00", border: "1px solid rgba(255,153,0,0.4)", background: "#FFFAF1" }}
-              >
-                Buy on Amazon <FiExternalLink size={16} />
-              </a>
-              <p className="text-xs text-center mt-1" style={{ color: SUBTLE }}>
-                Direct checkout on vedyara.in is coming soon.
-              </p>
+            <div ref={ctaRef} className="mt-6 flex flex-col gap-3">
+              {apiProduct ? (
+                <>
+                  <div className="flex items-center justify-between gap-3">
+                    <QuantityStepper value={qty} onChange={setQty} max={maxQty} disabled={outOfStock} />
+                    <div className="flex gap-2.5">
+                      <button
+                        onClick={() => toggleWishlist(apiProduct)}
+                        aria-label={liked ? "Remove from wishlist" : "Add to wishlist"}
+                        className="w-12 h-12 flex items-center justify-center rounded-xl border border-solid transition-colors"
+                        style={{
+                          borderColor: liked ? "#c0392b" : "rgba(62,47,28,0.15)",
+                          background: liked ? "rgba(192,57,43,0.06)" : "transparent",
+                          color: liked ? "#c0392b" : MUTED,
+                        }}
+                      >
+                        <FiHeart size={18} fill={liked ? "#c0392b" : "transparent"} />
+                      </button>
+                      <button
+                        onClick={handleShare}
+                        aria-label="Share"
+                        className="w-12 h-12 flex items-center justify-center rounded-xl border border-solid transition-colors hover:bg-black/[0.02]"
+                        style={{ borderColor: "rgba(62,47,28,0.15)", color: MUTED }}
+                      >
+                        <FiShare2 size={17} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex gap-2.5">
+                    <button
+                      onClick={() => addToCart(apiProduct, qty)}
+                      disabled={outOfStock}
+                      className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl font-semibold text-[15px] border-2 border-solid transition-colors hover:bg-[#f4f7ee] disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ borderColor: "#2D4A1E", color: "#2D4A1E" }}
+                    >
+                      <FiShoppingBag size={16} /> {outOfStock ? "Out of stock" : "Add to cart"}
+                    </button>
+                    <button
+                      onClick={buyNow}
+                      disabled={outOfStock}
+                      className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl font-semibold text-[15px] text-white transition-transform hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:translate-y-0 disabled:cursor-not-allowed"
+                      style={{ background: "#2D4A1E", boxShadow: "0 8px 22px rgba(45,74,30,0.25)" }}
+                    >
+                      Buy now
+                    </button>
+                  </div>
+                  <p className="text-xs text-center mt-1" style={{ color: SUBTLE }}>
+                    Also available on{" "}
+                    <a href={MEESHO_STORE_URL} target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline" style={{ color: "#a30089" }}>
+                      Meesho
+                    </a>{" "}
+                    and{" "}
+                    <a href={AMAZON_STORE_URL} target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline" style={{ color: "#a35f00" }}>
+                      Amazon
+                    </a>
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="flex gap-2.5">
+                    <a
+                      href={MEESHO_STORE_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl font-semibold text-[15px] text-white transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
+                      style={{ background: "#a30089", boxShadow: "0 8px 22px rgba(163,0,137,0.25)" }}
+                    >
+                      Buy on Meesho <FiExternalLink size={16} />
+                    </a>
+                    <button
+                      onClick={handleShare}
+                      aria-label="Share"
+                      className="w-12 h-12 flex items-center justify-center rounded-xl border border-solid transition-colors hover:bg-black/[0.02]"
+                      style={{ borderColor: "rgba(62,47,28,0.15)", color: MUTED }}
+                    >
+                      <FiShare2 size={17} />
+                    </button>
+                  </div>
+                  <a
+                    href={AMAZON_STORE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 h-12 rounded-xl font-semibold text-[15px] transition-colors hover:bg-[#fff4e0]"
+                    style={{ color: "#a35f00", border: "1px solid rgba(255,153,0,0.4)", background: "#FFFAF1" }}
+                  >
+                    Buy on Amazon <FiExternalLink size={16} />
+                  </a>
+                </>
+              )}
             </div>
 
             {/* Assurances */}
@@ -1068,24 +1126,36 @@ export default function ProductDetail() {
                   )}
                 </p>
               </div>
-              <a
-                href={AMAZON_STORE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden sm:inline-flex items-center gap-1.5 h-10 px-4 rounded-xl text-sm font-semibold"
-                style={{ color: "#a35f00", border: "1px solid rgba(255,153,0,0.4)", background: "#FFFAF1" }}
-              >
-                Amazon <FiExternalLink size={14} />
-              </a>
-              <a
-                href={MEESHO_STORE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl text-sm font-semibold text-white flex-shrink-0"
-                style={{ background: "#a30089" }}
-              >
-                Buy on Meesho <FiExternalLink size={14} />
-              </a>
+              {apiProduct ? (
+                <>
+                  <button
+                    onClick={() => addToCart(apiProduct, qty)}
+                    disabled={outOfStock}
+                    className="hidden sm:inline-flex items-center gap-1.5 h-10 px-4 rounded-xl text-sm font-semibold border-2 border-solid disabled:opacity-50"
+                    style={{ borderColor: "#2D4A1E", color: "#2D4A1E" }}
+                  >
+                    <FiShoppingBag size={14} /> Add to cart
+                  </button>
+                  <button
+                    onClick={buyNow}
+                    disabled={outOfStock}
+                    className="inline-flex items-center gap-1.5 h-10 px-5 rounded-xl text-sm font-semibold text-white flex-shrink-0 disabled:opacity-50"
+                    style={{ background: "#2D4A1E" }}
+                  >
+                    {outOfStock ? "Out of stock" : "Buy now"}
+                  </button>
+                </>
+              ) : (
+                <a
+                  href={MEESHO_STORE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl text-sm font-semibold text-white flex-shrink-0"
+                  style={{ background: "#a30089" }}
+                >
+                  Buy on Meesho <FiExternalLink size={14} />
+                </a>
+              )}
             </div>
           </motion.div>
         )}

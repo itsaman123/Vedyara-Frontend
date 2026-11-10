@@ -1,141 +1,180 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import toast from "react-hot-toast";
 import * as cartApi from "../api/cartApi";
+import { errorMessage } from "../api/http";
+import { availableStock, sellingPrice, type Product } from "../api/productApi";
+import { useAuth } from "./AuthContext";
+
+/** The product fields the cart needs; any API product satisfies it */
+export type CartProduct = Pick<Product, "_id" | "name" | "slug" | "price" | "discountedPrice" | "images"> &
+  Partial<Pick<Product, "unit" | "stock" | "status" | "inventoryTracking">>;
 
 interface CartContextType {
   cart: cartApi.Cart | null;
   isLoading: boolean;
-  addToCart: (product: any, quantity?: number) => Promise<void>;
+  /** Resolves true when the item was added; failures are shown as a toast */
+  addToCart: (product: CartProduct, quantity?: number) => Promise<boolean>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
   removeFromCart: (productId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
   refreshCart: () => Promise<void>;
   cartCount: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const GUEST_CART_KEY = "guest_cart";
+const emptyCart = (): cartApi.Cart => ({ items: [], totalAmount: 0 });
+
+const withTotal = (items: cartApi.CartItem[]): cartApi.Cart => ({
+  items,
+  totalAmount: items.reduce((acc, item) => acc + item.price * item.quantity, 0),
+});
+
+const readGuestCart = (): cartApi.Cart => {
+  try {
+    const saved = localStorage.getItem(GUEST_CART_KEY);
+    return saved ? withTotal(JSON.parse(saved).items ?? []) : emptyCart();
+  } catch {
+    return emptyCart();
+  }
+};
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = useAuth();
   const [cart, setCart] = useState<cartApi.Cart | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Lets clearCart wait for a guest-cart merge still in flight after sign-in
+  const syncRef = useRef<Promise<void>>(Promise.resolve());
 
-  const getLocalCart = (): cartApi.Cart => {
-    const saved = localStorage.getItem("guest_cart");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return { items: [], totalAmount: 0 };
-      }
-    }
-    return { items: [], totalAmount: 0 };
-  };
-
-  const saveLocalCart = (newCart: cartApi.Cart) => {
-    localStorage.setItem("guest_cart", JSON.stringify(newCart));
-    setCart(newCart);
+  const saveGuestCart = (items: cartApi.CartItem[]) => {
+    const next = withTotal(items);
+    localStorage.setItem(GUEST_CART_KEY, JSON.stringify(next));
+    setCart(next);
   };
 
   const refreshCart = useCallback(async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setCart(getLocalCart());
-      setIsLoading(false);
+    if (!isAuthenticated) {
+      setCart(readGuestCart());
       return;
     }
-
     try {
-      const data = await cartApi.getCart();
-      setCart(data);
-    } catch (error: any) {
+      setCart(await cartApi.getCart());
+    } catch (error) {
       console.error("Cart fetch error:", error);
-      if (error.message?.includes("token") || error.message?.includes("authorized")) {
-        localStorage.removeItem("token");
-        setCart(getLocalCart());
-      } else {
-        setCart(null);
-      }
-    } finally {
-      setIsLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
-    refreshCart();
-  }, [refreshCart]);
-
-  const addToCart = async (product: any, quantity: number = 1) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      const localCart = getLocalCart();
-      const productId = product._id || product.id;
-      const existingItemIndex = localCart.items.findIndex(item => item.productId === productId);
-      
-      if (existingItemIndex > -1) {
-        localCart.items[existingItemIndex].quantity += quantity;
-      } else {
-        localCart.items.push({
-          productId,
-          name: product.name || "Product",
-          price: product.price ? Number(String(product.price).replace(/[^0-9.]/g, '')) : 0,
-          image: product.image || (product.images && product.images[0]) || "",
-          quantity,
-          slug: product.slug || productId
-        });
-      }
-      
-      // Calculate total
-      localCart.totalAmount = localCart.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-      saveLocalCart(localCart);
+    if (!isAuthenticated) {
+      setCart(readGuestCart());
+      setIsLoading(false);
       return;
     }
 
+    // Just signed in: fold the guest cart into the account. It is taken out of
+    // storage before the await so a re-run of this effect can't merge it twice.
+    const guest = readGuestCart();
+    localStorage.removeItem(GUEST_CART_KEY);
+
+    setIsLoading(true);
+    syncRef.current = (async () => {
+      try {
+        const data = guest.items.length
+          ? await cartApi.mergeCart(guest.items.map(({ productId, quantity }) => ({ productId, quantity })))
+          : await cartApi.getCart();
+        setCart(data);
+      } catch (error) {
+        console.error("Cart sync error:", error);
+        if (guest.items.length) localStorage.setItem(GUEST_CART_KEY, JSON.stringify(guest));
+        setCart(guest);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [isAuthenticated]);
+
+  const addToCart = async (product: CartProduct, quantity: number = 1) => {
     try {
-      const productId = product._id || product.id;
-      const updatedCart = await cartApi.addToCart(productId, quantity);
-      setCart(updatedCart);
+      if (!isAuthenticated) {
+        const items = [...readGuestCart().items];
+        const existing = items.find((item) => item.productId === product._id);
+        const nextQuantity = (existing?.quantity ?? 0) + quantity;
+        const stock = product.stock === undefined ? null : availableStock({ ...product, stock: product.stock });
+
+        if (stock !== null && nextQuantity > stock) {
+          throw new Error(
+            stock > 0 ? `Only ${stock} of ${product.name} left in stock` : `${product.name} is out of stock`,
+          );
+        }
+
+        if (existing) {
+          existing.quantity = nextQuantity;
+        } else {
+          items.push({
+            productId: product._id,
+            name: product.name,
+            price: sellingPrice(product),
+            mrp: product.price,
+            image: product.images[0] || "",
+            quantity,
+            slug: product.slug,
+            unit: product.unit,
+            stock,
+          });
+        }
+        saveGuestCart(items);
+      } else {
+        setCart(await cartApi.addToCart(product._id, quantity));
+      }
+
+      toast.success(`${product.name.split("|")[0].trim()} added to cart`, { id: "cart-add" });
+      return true;
     } catch (error) {
-      console.error("Add to cart error:", error);
-      throw error;
+      toast.error(errorMessage(error), { id: "cart-add" });
+      return false;
     }
   };
 
   const updateQuantity = async (productId: string, quantity: number) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      const localCart = getLocalCart();
-      const item = localCart.items.find(item => item.productId === productId);
-      if (item) {
-        item.quantity = quantity;
-        localCart.totalAmount = localCart.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-        saveLocalCart(localCart);
-      }
-      return;
-    }
-
     try {
-      const updatedCart = await cartApi.updateCartItem(productId, quantity);
-      setCart(updatedCart);
+      if (!isAuthenticated) {
+        const items = readGuestCart().items.map((item) =>
+          item.productId === productId ? { ...item, quantity } : item,
+        );
+        saveGuestCart(items);
+        return;
+      }
+      setCart(await cartApi.updateCartItem(productId, quantity));
     } catch (error) {
-      console.error("Update cart error:", error);
-      throw error;
+      toast.error(errorMessage(error));
     }
   };
 
   const removeFromCart = async (productId: string) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      const localCart = getLocalCart();
-      localCart.items = localCart.items.filter(item => item.productId !== productId);
-      localCart.totalAmount = localCart.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-      saveLocalCart(localCart);
+    try {
+      if (!isAuthenticated) {
+        saveGuestCart(readGuestCart().items.filter((item) => item.productId !== productId));
+        return;
+      }
+      setCart(await cartApi.removeFromCart(productId));
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
+  };
+
+  const clearCart = async () => {
+    if (!isAuthenticated) {
+      localStorage.removeItem(GUEST_CART_KEY);
+      setCart(emptyCart());
       return;
     }
-
+    await syncRef.current;
+    setCart(emptyCart());
     try {
-      const updatedCart = await cartApi.removeFromCart(productId);
-      setCart(updatedCart);
+      await cartApi.clearCart();
     } catch (error) {
-      console.error("Remove from cart error:", error);
-      throw error;
+      console.error("Clear cart error:", error);
     }
   };
 
@@ -149,6 +188,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addToCart,
         updateQuantity,
         removeFromCart,
+        clearCart,
         refreshCart,
         cartCount,
       }}

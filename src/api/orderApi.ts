@@ -1,129 +1,92 @@
-import type { ApiResponse } from "./productApi";
+import type { AddressInput } from "./userApi";
 
-import { API_BASE_URL } from "../config/environment";
+import { request } from "./http";
 
-const getHeaders = () => {
-  const token = localStorage.getItem("token");
-  return {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-};
+export type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+export type PaymentStatus = "awaiting" | "paid" | "refunded" | "failed";
+export type PaymentMethod = "razorpay" | "cod";
 
-export interface RazorpayOrder {
-  id: string;
-  amount: number;
-  currency: string;
-  receipt: string;
-}
-
-export interface CreateOrderResponse {
-  razorpayOrder: RazorpayOrder;
-  orderId: string;
-}
-
-export const createRazorpayOrder = async (data: {
-  items: { productId: string; quantity: number }[];
+export type Order = {
+  _id: string;
+  orderNumber: string;
   customerName: string;
   customerEmail: string;
-}) => {
-  const response = await fetch(`${API_BASE_URL}/api/v1/orders/create`, {
-    method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify(data),
-  });
-  const payload = (await response.json()) as ApiResponse<CreateOrderResponse>;
-  if (!response.ok || !payload.success) {
-    throw new Error(payload.message || "Failed to create order");
-  }
-  return payload.data;
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  paymentMethod: PaymentMethod;
+  amount: number;
+  itemsCount: number;
+  shippingAddress: AddressInput;
+  createdAt: string;
+  updatedAt: string;
+  items: {
+    productId: string;
+    name: string;
+    image: string;
+    slug: string | null;
+    quantity: number;
+    price: number;
+  }[];
 };
 
+export type PlaceOrderInput = {
+  items: { productId: string; quantity: number }[];
+  shippingAddress: AddressInput;
+  saveAddress?: boolean;
+};
+
+export type PaymentConfig = {
+  razorpayEnabled: boolean;
+  razorpayKeyId: string | null;
+  codEnabled: boolean;
+};
+
+export type RazorpayOrderResponse = {
+  orderId: string;
+  orderNumber: string;
+  keyId: string;
+  razorpayOrder: { id: string; amount: number; currency: string };
+};
+
+export const getPaymentConfig = () => request<PaymentConfig>("/api/v1/orders/payment-config");
+
+export const createCodOrder = async (data: PlaceOrderInput) =>
+  (
+    await request<{ order: Order }>("/api/v1/orders/create-cod", {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
+  ).order;
+
+export const createRazorpayOrder = (data: PlaceOrderInput) =>
+  request<RazorpayOrderResponse>("/api/v1/orders/create", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
 export const verifyPayment = async (data: {
+  orderId: string;
   razorpay_order_id: string;
   razorpay_payment_id: string;
   razorpay_signature: string;
-  orderId: string;
-}) => {
-  const response = await fetch(`${API_BASE_URL}/api/v1/orders/verify`, {
-    method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify(data),
-  });
-  const payload = (await response.json()) as ApiResponse<any>;
-  if (!response.ok || !payload.success) {
-    throw new Error(payload.message || "Payment verification failed");
-  }
-  return payload.data;
-};
+}) =>
+  (
+    await request<{ order: Order }>("/api/v1/orders/verify", {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
+  ).order;
 
-export const sendOtp = async (data: { email: string }) => {
-  const response = await fetch(`${API_BASE_URL}/api/v1/orders/send-otp`, {
-    method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify(data),
-  });
-  const payload = (await response.json()) as ApiResponse<any>;
-  if (!response.ok || !payload.success) {
-    throw new Error(payload.message || "Failed to send OTP");
-  }
-  return payload.data;
-};
+export const cancelPayment = (orderId: string) =>
+  request<null>(`/api/v1/orders/${orderId}/cancel-payment`, { method: "POST" });
 
-export const verifyOtp = async (data: { email: string; otp: string; name?: string }) => {
-  const response = await fetch(`${API_BASE_URL}/api/v1/orders/verify-otp`, {
-    method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify(data),
-  });
-  const payload = (await response.json()) as ApiResponse<any>;
-  if (!response.ok || !payload.success) {
-    throw new Error(payload.message || "Failed to verify OTP");
-  }
-  return payload.data;
-};
-
-export const createCodOrder = async (data: {
-  items: { productId: string; quantity: number }[];
-  customerName: string;
-  customerEmail: string;
-  shippingAddress: {
-    name: string;
-    phone: string;
-    address: string;
-    city: string;
-    pincode: string;
-  };
-}) => {
-  const response = await fetch(`${API_BASE_URL}/api/v1/orders/create-cod`, {
-    method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify(data),
-  });
-  const payload = (await response.json()) as ApiResponse<{ orderId: string; orderNumber: string }>;
-  if (!response.ok || !payload.success) {
-    throw new Error(payload.message || "Failed to place order");
-  }
-  return payload.data;
-};
-
-export const getMyOrders = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/v1/orders/myorders`, {
-    method: "GET",
-    headers: getHeaders(),
-  });
-  const payload = (await response.json()) as ApiResponse<any[]>;
-  if (!response.ok || !payload.success) {
-    throw new Error(payload.message || "Failed to fetch orders");
-  }
-  return payload.data;
-};
+export const getMyOrders = () => request<Order[]>("/api/v1/orders/myorders");
 
 export type TrackedOrder = {
   orderNumber: string;
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
-  paymentStatus: "awaiting" | "paid" | "refunded" | "failed";
-  paymentMethod: "razorpay" | "cod";
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  paymentMethod: PaymentMethod;
   amount: number;
   itemsCount: number;
   city: string | null;
@@ -139,14 +102,7 @@ export type TrackedOrder = {
   }[];
 };
 
-export const trackOrder = async (orderNumber: string, email: string) => {
-  const url = new URL(`${API_BASE_URL}/api/v1/orders/track`);
-  url.searchParams.set("orderNumber", orderNumber.trim());
-  url.searchParams.set("email", email.trim());
-  const response = await fetch(url.toString());
-  const payload = (await response.json()) as ApiResponse<TrackedOrder>;
-  if (!response.ok || !payload.success) {
-    throw new Error(payload.message || "Could not find this order");
-  }
-  return payload.data;
+export const trackOrder = (orderNumber: string, email: string) => {
+  const params = new URLSearchParams({ orderNumber: orderNumber.trim(), email: email.trim() });
+  return request<TrackedOrder>(`/api/v1/orders/track?${params}`);
 };

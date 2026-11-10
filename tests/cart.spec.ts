@@ -45,22 +45,32 @@ test.describe("Cart — with items", () => {
     await expect(page.getByText(/449|Total/i).first()).toBeVisible({ timeout: 6000 });
   });
 
-  test("checkout Buy Now button exists when cart has items", async ({ page }) => {
+  test("checkout button exists when cart has items", async ({ page }) => {
     await page.goto("/cart");
     await waitForPageLoad(page);
 
-    // Cart.tsx renders a "Buy Now" button (not labelled "checkout")
-    const checkoutBtn = page.getByRole("button", { name: /Buy Now/i });
+    const checkoutBtn = page.getByRole("button", { name: /Proceed to Checkout/i });
     await expect(checkoutBtn.first()).toBeVisible({ timeout: 6000 });
+    await checkoutBtn.first().click();
+    await expect(page).toHaveURL(/\/checkout/);
   });
 
-  test("remove item button is visible", async ({ page }) => {
+  test("remove item empties the cart", async ({ page }) => {
     await page.goto("/cart");
     await waitForPageLoad(page);
 
-    // Trash button has class "text-gray-400" and is inside the cart items list
-    const removeBtn = page.locator(".space-y-6 button").filter({ has: page.locator("svg") }).first();
-    await expect(removeBtn).toBeVisible({ timeout: 6000 });
+    await page.getByRole("button", { name: /Remove .* from cart/i }).first().click();
+    await expect(page.getByText(/Your Cart is Empty/i)).toBeVisible({ timeout: 6000 });
+    const guestCart = await page.evaluate(() => JSON.parse(localStorage.getItem("guest_cart") || "{}"));
+    expect(guestCart.items).toHaveLength(0);
+  });
+
+  test("quantity stepper updates the line total", async ({ page }) => {
+    await page.goto("/cart");
+    await waitForPageLoad(page);
+
+    await page.getByRole("button", { name: "Increase quantity" }).first().click();
+    await expect(page.getByText("₹898").first()).toBeVisible({ timeout: 6000 });
   });
 });
 
@@ -70,28 +80,35 @@ test.describe("Cart — guest cart interactions", () => {
     await page.goto("/products");
     await waitForPageLoad(page);
 
-    // Find the cart icon button on a product card (has ShoppingBag icon, no text label)
-    const addBtn = page.getByRole("button", { name: /add to cart|add/i }).first();
-    const hasBtn = await addBtn.count() > 0;
-    if (hasBtn) {
-      // Clicking should not throw or navigate away
-      await addBtn.click();
-      await page.waitForTimeout(600);
-      // Still on /products page (not redirected to error page)
-      expect(page.url()).toContain("/products");
-    }
+    const addBtn = page.getByRole("button", { name: /to cart/i }).first();
+    await expect(addBtn).toBeVisible({ timeout: 8000 });
+    // Adding from a card shouldn't open the product page
+    await addBtn.click();
+    await page.waitForTimeout(600);
+    expect(page.url()).toContain("/products");
+    const guestCart = await page.evaluate(() => JSON.parse(localStorage.getItem("guest_cart") || "{}"));
+    expect(guestCart.items?.[0]?.price).toBe(449); // discounted price, not MRP
   });
 });
 
 test.describe("Checkout", () => {
-  test("checkout page shows form or redirects unauthenticated users", async ({ page }) => {
+  test("empty cart checkout points back to the shop", async ({ page }) => {
     await mockAllApis(page);
     await page.goto("/checkout");
     await waitForPageLoad(page);
 
-    const hasForm = await page.getByRole("textbox").count() > 0;
-    const hasAuthMsg = await page.getByText(/login|sign in|authenticate/i).count() > 0;
-    const isRedirected = page.url().includes("/login") || page.url().includes("/auth");
-    expect(hasForm || hasAuthMsg || isRedirected).toBeTruthy();
+    await expect(page.getByText(/Your cart is empty/i)).toBeVisible({ timeout: 6000 });
+    await expect(page.getByRole("link", { name: /Browse products/i })).toBeVisible();
+  });
+
+  test("guest checkout asks for contact and address details", async ({ page }) => {
+    await setGuestCart(page);
+    await mockAllApis(page);
+    await page.goto("/checkout");
+    await waitForPageLoad(page);
+
+    await expect(page.getByLabel("Email")).toBeVisible({ timeout: 6000 });
+    await expect(page.getByLabel("Pincode")).toBeVisible();
+    await expect(page.getByText("Pure Natural Honey").first()).toBeVisible();
   });
 });

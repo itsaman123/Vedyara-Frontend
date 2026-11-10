@@ -1,35 +1,20 @@
-import type { ApiResponse, Product } from "./productApi";
+import type { Product } from "./productApi";
 
-import { API_BASE_URL } from "../config/environment";
+import { request } from "./http";
 
-const getHeaders = () => {
-  const token = localStorage.getItem("token");
-  return {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-};
+export const getWishlist = async () =>
+  (await request<{ items: Product[] }>("/api/v1/wishlist")).items;
 
-export const getWishlist = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/v1/wishlist`, {
-    headers: getHeaders(),
-  });
-  const payload = (await response.json()) as ApiResponse<{ items: Product[] }>;
-  if (!response.ok || !payload.success) {
-    throw new Error(payload.message || "Failed to fetch wishlist");
-  }
-  return payload.data.items;
-};
-
-export const toggleWishlist = async (productId: string) => {
-  const response = await fetch(`${API_BASE_URL}/api/v1/wishlist/toggle`, {
+export const toggleWishlist = (productId: string) =>
+  request<{ inWishlist: boolean }>("/api/v1/wishlist/toggle", {
     method: "POST",
-    headers: getHeaders(),
     body: JSON.stringify({ productId }),
   });
-  const payload = (await response.json()) as ApiResponse<{ inWishlist: boolean }>;
-  if (!response.ok || !payload.success) {
-    throw new Error(payload.message || "Failed to toggle wishlist");
-  }
-  return payload.data;
-};
+
+export const mergeWishlist = async (productIds: string[]) =>
+  (
+    await request<{ items: Product[] }>("/api/v1/wishlist/merge", {
+      method: "POST",
+      body: JSON.stringify({ productIds }),
+    })
+  ).items;

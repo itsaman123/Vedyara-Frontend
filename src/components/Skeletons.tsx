@@ -189,6 +189,7 @@ export function AdminOrderTableSkeleton({ rows = 10 }: { rows?: number }) {
           </td>
           <td><Skeleton width={20} height={13} /></td>
           <td><Skeleton width={55} height={13} /></td>
+          <td><Skeleton width={100} height={13} /></td>
           <td><Skeleton width={80} height={22} borderRadius={99} /></td>
           <td><Skeleton width={90} height={13} /></td>
           <td style={{ textAlign: "right" }}>

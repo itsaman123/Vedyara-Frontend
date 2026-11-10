@@ -1,36 +1,66 @@
-import type { ApiResponse } from "./productApi";
+import { request } from "./http";
 
-import { API_BASE_URL } from "../config/environment";
-
-const getHeaders = () => {
-  const token = localStorage.getItem("token");
-  return {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
+export type Address = {
+  _id: string;
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+  state?: string;
+  pincode: string;
+  isDefault: boolean;
 };
 
-export const getProfile = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/v1/users/profile`, {
-    method: "GET",
-    headers: getHeaders(),
+export type AddressInput = Omit<Address, "_id" | "isDefault">;
+
+export type User = {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  emailVerified: boolean;
+  addresses: Address[];
+};
+
+export type Session = { otpRequired: false; token: string; user: User };
+export type OtpChallenge = { otpRequired: true; email: string };
+
+export const getProfile = () => request<{ user: User }>("/api/v1/users/profile");
+
+export const updateProfile = (data: { name?: string; phone?: string }) =>
+  request<{ user: User }>("/api/v1/users/profile", {
+    method: "PUT",
+    body: JSON.stringify(data),
   });
-  const payload = (await response.json()) as ApiResponse<any>;
-  if (!response.ok || !payload.success) {
-    throw new Error(payload.message || "Failed to fetch profile");
-  }
-  return payload.data;
-};
 
-export const addAddress = async (addressData: any) => {
-  const response = await fetch(`${API_BASE_URL}/api/v1/users/addresses`, {
+export const addAddress = (address: AddressInput & { isDefault?: boolean }) =>
+  request<{ user: User }>("/api/v1/users/addresses", {
     method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify(addressData),
+    body: JSON.stringify(address),
   });
-  const payload = (await response.json()) as ApiResponse<any>;
-  if (!response.ok || !payload.success) {
-    throw new Error(payload.message || "Failed to add address");
-  }
-  return payload.data;
-};
+
+export const setDefaultAddress = (id: string) =>
+  request<{ user: User }>(`/api/v1/users/addresses/${id}/default`, { method: "PATCH" });
+
+export const deleteAddress = (id: string) =>
+  request<{ user: User }>(`/api/v1/users/addresses/${id}`, { method: "DELETE" });
+
+/** New email: creates the account and returns a session. Known email: emails a code. */
+export const checkoutAuth = (data: { name: string; email: string; phone: string }) =>
+  request<Session | OtpChallenge>("/api/v1/users/checkout-auth", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+export const requestOtp = (email: string) =>
+  request<OtpChallenge>("/api/v1/users/otp/request", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+
+export const verifyOtp = (email: string, otp: string) =>
+  request<Session>("/api/v1/users/otp/verify", {
+    method: "POST",
+    body: JSON.stringify({ email, otp }),
+  });

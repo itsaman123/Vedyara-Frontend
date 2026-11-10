@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { trackPurchase } from "../analytics";
+import type { Order } from "../api/orderApi";
 import { useSEO } from "../utils/seo";
 
 import { motion } from "framer-motion";
 import {
   FiCheck,
+  FiCreditCard,
   FiTruck,
   FiPackage,
   FiShield,
@@ -13,29 +15,6 @@ import {
   FiMail,
   FiPhone,
 } from "react-icons/fi";
-
-interface OrderItem {
-  name: string;
-  image?: string;
-  quantity: number;
-  price: number;
-}
-
-interface OrderState {
-  orderId: string;
-  orderNumber: string;
-  customerName: string;
-  customerEmail: string;
-  shippingAddress: {
-    name: string;
-    phone: string;
-    address: string;
-    city: string;
-    pincode: string;
-  };
-  items: OrderItem[];
-  totalAmount: number;
-}
 
 const fadeUp = (delay: number) => ({
   initial: { opacity: 0, y: 18 },
@@ -46,19 +25,19 @@ export default function OrderConfirmation() {
   useSEO({ noindex: true });
   const location = useLocation();
   const navigate = useNavigate();
-  const state = location.state as OrderState | null;
+  const order = (location.state as { order?: Order } | null)?.order;
 
   // Guard: no order data → go home
   useEffect(() => {
-    if (!state?.orderId) {
+    if (!order?._id) {
       navigate("/", { replace: true });
     }
-  }, [state, navigate]);
+  }, [order, navigate]);
 
   // Tag purchase in Clarity on mount
   useEffect(() => {
-    if (!state?.orderId) return;
-    trackPurchase({ orderNumber: state.orderNumber, totalAmount: state.totalAmount });
+    if (!order?._id) return;
+    trackPurchase({ orderNumber: order.orderNumber, totalAmount: order.amount });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -71,7 +50,7 @@ export default function OrderConfirmation() {
     return () => window.removeEventListener("popstate", handlePop);
   }, []);
 
-  if (!state?.orderId) return null;
+  if (!order?._id) return null;
 
   const {
     orderNumber,
@@ -79,8 +58,9 @@ export default function OrderConfirmation() {
     customerEmail,
     shippingAddress,
     items,
-    totalAmount,
-  } = state;
+    amount: totalAmount,
+  } = order;
+  const paidOnline = order.paymentMethod === "razorpay" && order.paymentStatus === "paid";
 
   const firstName = customerName.split(" ")[0];
 
@@ -106,7 +86,7 @@ export default function OrderConfirmation() {
     {
       icon: FiShield,
       title: "Delivered",
-      desc: `Pay ₹${totalAmount} cash to the delivery person`,
+      desc: paidOnline ? "Enjoy your Vedyara goodness!" : `Pay ₹${totalAmount} cash to the delivery person`,
       done: false,
     },
   ];
@@ -135,7 +115,7 @@ export default function OrderConfirmation() {
           </motion.h1>
 
           <motion.p {...fadeUp(0.2)} className="text-stone-500 text-base">
-            Thank you, {firstName}! Your order is on its way.
+            Thank you, {firstName}! You can follow this order any time from My Orders.
           </motion.p>
 
           {orderNumber && (
@@ -214,7 +194,8 @@ export default function OrderConfirmation() {
             <p className="font-semibold text-stone-800">{shippingAddress.name}</p>
             <p>{shippingAddress.address}</p>
             <p>
-              {shippingAddress.city} — {shippingAddress.pincode}
+              {shippingAddress.city}
+              {shippingAddress.state ? `, ${shippingAddress.state}` : ""} — {shippingAddress.pincode}
             </p>
             <div className="border-t border-stone-100 mt-3 pt-3 space-y-1.5">
               <div className="flex items-center gap-2">
@@ -271,31 +252,36 @@ export default function OrderConfirmation() {
           </div>
         </motion.div>
 
-        {/* ── COD Reminder ── */}
+        {/* ── Payment ── */}
         <motion.div
           {...fadeUp(0.45)}
           className="flex items-start gap-3 p-5 rounded-2xl mb-8"
           style={{
-            background: "rgba(212,175,55,0.1)",
-            border: "1px solid rgba(212,175,55,0.3)",
+            background: paidOnline ? "rgba(107,142,35,0.08)" : "rgba(212,175,55,0.1)",
+            border: `1px solid ${paidOnline ? "rgba(107,142,35,0.25)" : "rgba(212,175,55,0.3)"}`,
           }}
         >
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ background: "rgba(212,175,55,0.2)" }}
+            style={{ background: paidOnline ? "rgba(107,142,35,0.15)" : "rgba(212,175,55,0.2)" }}
           >
-            <FiTruck size={18} style={{ color: "#b8941f" }} />
+            {paidOnline ? (
+              <FiCreditCard size={18} style={{ color: "#3d6b1a" }} />
+            ) : (
+              <FiTruck size={18} style={{ color: "#b8941f" }} />
+            )}
           </div>
           <div>
             <p className="font-bold text-sm" style={{ color: "#3E2F1C" }}>
-              Cash on Delivery · ₹{totalAmount}
+              {paidOnline ? `Paid online · ₹${totalAmount}` : `Cash on Delivery · ₹${totalAmount}`}
             </p>
             <p
               className="text-xs mt-1 leading-relaxed"
               style={{ color: "rgba(62,47,28,0.65)" }}
             >
-              Please keep the exact amount ready when your order arrives. The delivery
-              person will collect it at your doorstep.
+              {paidOnline
+                ? "Your payment was successful. Nothing more to pay when your order arrives."
+                : "Please keep the exact amount ready when your order arrives. The delivery person will collect it at your doorstep."}
             </p>
           </div>
         </motion.div>
@@ -305,14 +291,12 @@ export default function OrderConfirmation() {
           {...fadeUp(0.5)}
           className="flex flex-col sm:flex-row gap-3"
         >
-          {localStorage.getItem("token") && (
-            <button
-              onClick={() => navigate("/orders")}
-              className="flex-1 py-4 rounded-2xl font-bold text-sm border-2 border-[#3E2F1C] text-[#3E2F1C] hover:bg-stone-50 transition-colors"
-            >
-              View My Orders
-            </button>
-          )}
+          <button
+            onClick={() => navigate("/orders")}
+            className="flex-1 py-4 rounded-2xl font-bold text-sm border-2 border-solid border-[#3E2F1C] text-[#3E2F1C] hover:bg-stone-50 transition-colors"
+          >
+            View My Orders
+          </button>
           <button
             onClick={() => navigate("/products")}
             className="flex-1 py-4 rounded-2xl font-bold text-sm transition-colors shadow-md"

@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
-import { FiHeart, FiExternalLink } from "react-icons/fi";
+import { FiHeart, FiShoppingBag } from "react-icons/fi";
 import { useWishlist } from "../context/WishlistContext";
-import type { Product as ApiProduct } from "../api/productApi";
-import { MEESHO_STORE_URL } from "../config/environment";
+import { useCart } from "../context/CartContext";
+import { availableStock, type Product as ApiProduct } from "../api/productApi";
 
 export default function ProductCard({
   product,
@@ -14,7 +14,9 @@ export default function ProductCard({
   onView: (p: ApiProduct) => void;
 }) {
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart();
   const wishlisted = isInWishlist(product._id);
+  const soldOut = availableStock(product) === 0;
 
   const displayPrice = product.discountedPrice !== null ? product.discountedPrice : product.price;
   const savings = product.discountedPrice !== null
@@ -94,21 +96,20 @@ export default function ProductCard({
               <p className="text-[10px] text-brand-brown/40">{product.unit}</p>
             </div>
 
-            <a
-              href={MEESHO_STORE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              aria-label="Order on Meesho"
-              className="inline-flex items-center justify-center gap-1 h-8 px-3 rounded-xl font-bold text-[11px] flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
-              style={{
-                background: "#a30089",
-                color: "#fff",
-                boxShadow: "0 4px 12px rgba(163,0,137,0.3)",
-              }}
+            <button
+              type="button"
+              disabled={soldOut}
+              onClick={(e) => { e.stopPropagation(); addToCart(product); }}
+              aria-label={soldOut ? `${product.name} is sold out` : `Add ${product.name} to cart`}
+              className="inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-xl font-bold text-[11px] flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 active:scale-95 disabled:translate-y-0 disabled:cursor-not-allowed"
+              style={
+                soldOut
+                  ? { background: "rgba(62,47,28,0.08)", color: "rgba(62,47,28,0.45)" }
+                  : { background: "#2D4A1E", color: "#fff", boxShadow: "0 4px 12px rgba(45,74,30,0.28)" }
+              }
             >
-              Buy <FiExternalLink size={10} />
-            </a>
+              {soldOut ? "Sold out" : <><FiShoppingBag size={11} /> Add</>}
+            </button>
           </div>
         </div>
       </div>

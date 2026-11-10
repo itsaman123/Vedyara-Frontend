@@ -5,16 +5,16 @@ import { ProductCardSkeleton, ProductListRowSkeleton } from "../components/Skele
 import ProductCard from "../components/ProductCard";
 import {
   FiSearch, FiX, FiHeart, FiArrowRight,
-  FiCheck, FiPackage, FiShield, FiExternalLink, FiShoppingBag,
+  FiCheck, FiPackage, FiShield, FiShoppingBag,
 } from "react-icons/fi";
 import { FaStar, FaLeaf } from "react-icons/fa";
-import { useProducts, type Product as ApiProduct } from "../api/productApi";
+import { availableStock, useProducts, type Product as ApiProduct } from "../api/productApi";
 import { categories } from "../data/products";
 import HoneyImg from "../assets/image-1.jpg";
 import HaldiImg from "../assets/haldi.jpeg";
 import DhaniyaImg from "../assets/dhaniya.jpeg";
 import { useWishlist } from "../context/WishlistContext";
-import { MEESHO_STORE_URL } from "../config/environment";
+import { useCart } from "../context/CartContext";
 import { useSEO } from "../utils/seo";
 import HoneycombScene from "../components/HoneycombScene";
 
@@ -31,7 +31,9 @@ const ProductListRow = ({
   onView: (p: ApiProduct) => void;
 }) => {
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart();
   const wishlisted = isInWishlist(product._id);
+  const soldOut = availableStock(product) === 0;
   const displayPrice = product.discountedPrice !== null ? product.discountedPrice : product.price;
 
   return (
@@ -111,6 +113,7 @@ const ProductListRow = ({
           <div className="flex items-center gap-2">
             <button
               onClick={(e) => { e.stopPropagation(); toggleWishlist(product); }}
+              aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
               className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors duration-200"
               style={{
                 background: wishlisted ? "#c0392b" : "rgba(62,47,28,0.05)",
@@ -119,16 +122,19 @@ const ProductListRow = ({
             >
               <FiHeart size={15} fill={wishlisted ? "#fff" : "transparent"} />
             </button>
-            <a
-              href={MEESHO_STORE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="h-9 px-4 flex items-center gap-1.5 rounded-xl font-bold text-sm transition-all duration-200 active:scale-95"
-              style={{ background: "#a30089", color: "#fff", boxShadow: "0 4px 12px rgba(163,0,137,0.25)" }}
+            <button
+              type="button"
+              disabled={soldOut}
+              onClick={(e) => { e.stopPropagation(); addToCart(product); }}
+              className="h-9 px-4 flex items-center gap-1.5 rounded-xl font-bold text-sm transition-all duration-200 active:scale-95 disabled:cursor-not-allowed"
+              style={
+                soldOut
+                  ? { background: "rgba(62,47,28,0.08)", color: "rgba(62,47,28,0.45)" }
+                  : { background: "#2D4A1E", color: "#fff", boxShadow: "0 4px 12px rgba(45,74,30,0.25)" }
+              }
             >
-              Order on Meesho <FiExternalLink size={12} />
-            </a>
+              {soldOut ? "Sold out" : <><FiShoppingBag size={13} /> Add to cart</>}
+            </button>
           </div>
         </div>
       </div>

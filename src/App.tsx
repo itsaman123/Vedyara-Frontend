@@ -27,6 +27,7 @@ const Cart        = lazy(() => import("./pages/Cart"));
 const Wishlist    = lazy(() => import("./pages/Wishlist"));
 const Checkout    = lazy(() => import("./pages/Checkout"));
 const Profile             = lazy(() => import("./pages/Profile"));
+const Login               = lazy(() => import("./pages/Login"));
 const OrderConfirmation   = lazy(() => import("./pages/OrderConfirmation"));
 const BulkOrder           = lazy(() => import("./pages/BulkOrder"));
 const TrackOrder          = lazy(() => import("./pages/TrackOrder"));
@@ -101,6 +102,7 @@ function AnimatedRoutes() {
         <Route path="/order-confirmation"    element={<PageWrap><Suspense fallback={<PageSkeleton />}><OrderConfirmation /></Suspense></PageWrap>} />
         <Route path="/orders"     element={<PageWrap><Suspense fallback={<PageSkeleton />}><Profile /></Suspense></PageWrap>} />
         <Route path="/profile"    element={<PageWrap><Suspense fallback={<PageSkeleton />}><Profile /></Suspense></PageWrap>} />
+        <Route path="/login"      element={<PageWrap><Suspense fallback={<PageSkeleton />}><Login /></Suspense></PageWrap>} />
         <Route path="/bulk-order"            element={<PageWrap><Suspense fallback={<PageSkeleton />}><BulkOrder /></Suspense></PageWrap>} />
         <Route path="/track-order"           element={<PageWrap><Suspense fallback={<PageSkeleton />}><TrackOrder /></Suspense></PageWrap>} />
         <Route path="/returns-cancellations" element={<PageWrap><Suspense fallback={<PageSkeleton />}><ReturnsPolicy /></Suspense></PageWrap>} />

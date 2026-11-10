@@ -1,16 +1,22 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiHeart, FiTrash2, FiExternalLink, FiShoppingBag } from "react-icons/fi";
+import { FiHeart, FiTrash2, FiShoppingBag } from "react-icons/fi";
 import { useWishlist } from "../context/WishlistContext";
+import { useCart } from "../context/CartContext";
+import { availableStock, type Product } from "../api/productApi";
 import { WishlistCardSkeleton } from "../components/Skeletons";
-import { AMAZON_STORE_URL, MEESHO_STORE_URL } from "../config/environment";
 import { useSEO } from "../utils/seo";
 
 const Wishlist: React.FC = () => {
   useSEO({ noindex: true });
   const { wishlist, toggleWishlist, isLoading } = useWishlist();
+  const { addToCart } = useCart();
   const navigate = useNavigate();
+
+  const moveToCart = async (product: Product) => {
+    if (await addToCart(product)) await toggleWishlist(product, { silent: true });
+  };
 
   if (isLoading) {
     return (
@@ -73,6 +79,7 @@ const Wishlist: React.FC = () => {
                 {/* Remove button */}
                 <button
                   onClick={() => toggleWishlist(product)}
+                  aria-label={`Remove ${product.name} from wishlist`}
                   className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm text-gray-400 hover:text-red-500 transition-colors shadow-sm"
                 >
                   <FiTrash2 size={18} />
@@ -109,30 +116,22 @@ const Wishlist: React.FC = () => {
                   </div>
 
                   <div className="mt-auto space-y-3">
-                    <motion.a
-                      href={MEESHO_STORE_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full py-3 rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2"
-                      style={{ background: "#a30089", color: "#fff" }}
-                    >
-                      <FiExternalLink size={16} />
-                      Order on Meesho
-                    </motion.a>
-                    <motion.a
-                      href={AMAZON_STORE_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2"
-                      style={{ background: "rgba(255,153,0,0.1)", color: "#b36b00", border: "1.5px solid rgba(255,153,0,0.3)" }}
-                    >
-                      <FiExternalLink size={14} />
-                      Order on Amazon
-                    </motion.a>
+                    {product.stock !== undefined && availableStock(product) === 0 ? (
+                      <p className="w-full py-3 rounded-xl text-center font-bold text-sm bg-stone-100 text-stone-400">
+                        Out of stock
+                      </p>
+                    ) : (
+                      <motion.button
+                        onClick={() => moveToCart(product)}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full py-3 rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2 text-white"
+                        style={{ background: "#2D4A1E" }}
+                      >
+                        <FiShoppingBag size={16} />
+                        Move to cart
+                      </motion.button>
+                    )}
                     <button
                       onClick={() => navigate(`/product/${product.slug}`)}
                       className="w-full py-3 rounded-xl border border-gray-100 text-gray-500 font-semibold text-sm hover:bg-gray-50 transition-colors"

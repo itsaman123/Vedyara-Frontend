@@ -100,8 +100,31 @@ export type AdminOrder = {
   amount: number;
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
   paymentStatus: "awaiting" | "paid" | "refunded" | "failed";
+  paymentMethod: "razorpay" | "cod";
   createdAt: string;
   updatedAt: string;
+};
+
+export type AdminOrderDetail = AdminOrder & {
+  user: { _id: string; name: string; email: string; phone?: string } | null;
+  shippingAddress?: {
+    name?: string;
+    phone?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+  };
+  items: {
+    _id: string;
+    name?: string;
+    image?: string;
+    quantity: number;
+    price: number;
+    product: { _id: string; name: string; sku: string; images: string[]; unit: string } | null;
+  }[];
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
 };
 
 type ApiResponse<T> = {
@@ -335,6 +358,23 @@ export const getAdminOrders = (params: {
     params,
   );
 
+export const getAdminOrder = async (id: string) =>
+  (await apiRequest<{ order: AdminOrderDetail }>(`/api/admin/orders/${id}`)).order;
+
+export const updateAdminOrderStatus = async ({
+  id,
+  status,
+}: {
+  id: string;
+  status: AdminOrder["status"];
+}) =>
+  (
+    await apiRequest<{ order: AdminOrderDetail }>(`/api/admin/orders/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    })
+  ).order;
+
 export const getAdminOrderSummary = () =>
   apiRequest<{
     totalOrders: number;
@@ -454,5 +494,27 @@ export function useAdminOrderSummary() {
   return useQuery({
     queryKey: ["admin", "orders", "summary"],
     queryFn: getAdminOrderSummary,
+  });
+}
+
+export function useAdminOrder(id: string | null) {
+  return useQuery({
+    queryKey: ["admin", "orders", "detail", id],
+    queryFn: () => getAdminOrder(id as string),
+    enabled: Boolean(id),
+  });
+}
+
+export function useUpdateAdminOrderStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateAdminOrderStatus,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "orders"] });
+      // Cancelling puts stock back
+      void queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "inventory"] });
+    },
   });
 }

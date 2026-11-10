@@ -37,9 +37,15 @@ test.describe("Product Detail Page — API product", () => {
     await expect(page.getByText("₹899").first()).toBeVisible({ timeout: 8000 });
   });
 
-  test("add to cart button is present", async ({ page }) => {
-    const btn = page.getByRole("button", { name: /add to cart|add/i }).first();
-    await expect(btn).toBeVisible({ timeout: 8000 });
+  test("add to cart and buy now buttons are present", async ({ page }) => {
+    await expect(page.getByRole("button", { name: /^add to cart$/i }).first()).toBeVisible({ timeout: 8000 });
+    await expect(page.getByRole("button", { name: /^buy now$/i }).first()).toBeVisible();
+  });
+
+  test("buy now goes to checkout with the chosen quantity", async ({ page }) => {
+    await page.getByRole("button", { name: "Increase quantity" }).first().click();
+    await page.getByRole("button", { name: /^buy now$/i }).first().click();
+    await expect(page).toHaveURL(/\/checkout\?buy=pure-natural-honey-500g&qty=2/);
   });
 
   test("product description text is displayed", async ({ page }) => {
@@ -53,13 +59,10 @@ test.describe("Product Detail Page — API product", () => {
 
   test("add to cart stores in guest cart when unauthenticated", async ({ page }) => {
     // No token → CartContext uses localStorage guest_cart
-    const btn = page.getByRole("button", { name: /add to cart|add/i }).first();
-    if (await btn.count() > 0) {
-      await btn.click();
-      await page.waitForTimeout(800);
-      const guestCart = await page.evaluate(() => localStorage.getItem("guest_cart"));
-      expect(guestCart).not.toBeNull();
-    }
+    await page.getByRole("button", { name: /^add to cart$/i }).first().click();
+    await page.waitForTimeout(800);
+    const guestCart = await page.evaluate(() => JSON.parse(localStorage.getItem("guest_cart") || "null"));
+    expect(guestCart?.items?.[0]).toMatchObject({ productId: "prod_honey_500", quantity: 1, price: 449 });
   });
 });
 

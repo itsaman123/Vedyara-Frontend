@@ -15,12 +15,28 @@ export type Product = {
   price: number;
   discountedPrice: number | null;
   stock: number;
+  /** When false, stock isn't enforced for this product */
+  inventoryTracking?: boolean;
   unit: string;
   images: string[];
   featured: boolean;
   status: "active" | "inactive" | "draft" | "out_of_stock";
   createdAt: string;
   updatedAt: string;
+};
+
+/** What the customer pays for one unit */
+export const sellingPrice = (product: Pick<Product, "price" | "discountedPrice">) =>
+  product.discountedPrice !== null && product.discountedPrice !== undefined
+    ? product.discountedPrice
+    : product.price;
+
+/** Units that can be bought right now, or null when stock isn't tracked */
+export const availableStock = (
+  product: Pick<Product, "stock" | "inventoryTracking"> & { status?: Product["status"] },
+) => {
+  if (product.status === "out_of_stock") return 0;
+  return product.inventoryTracking === false ? null : product.stock;
 };
 
 export type Pagination = {

@@ -319,3 +319,122 @@
     height: 100px;
   }
 }
+
+/* ── ORDER DETAIL MODAL ── */
+.admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 16px;
+  overflow-y: auto;
+  background: rgba(20, 16, 10, 0.45);
+}
+
+.admin-modal {
+  width: 100%;
+  max-width: 640px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+}
+
+.admin-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-modal-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.admin-modal-section {
+  font-size: 0.85rem;
+  color: #1a1a1a;
+}
+
+.admin-modal-section p {
+  margin: 0 0 3px;
+}
+
+.admin-modal-muted {
+  color: #777;
+  font-size: 0.8rem;
+}
+
+.admin-modal-error {
+  color: #b4281d;
+  font-size: 0.8rem;
+  margin-top: 8px;
+}
+
+.admin-modal-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0 24px;
+}
+
+.admin-modal-status-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.admin-modal-status-row .admin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-order-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.admin-order-line img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #f7f7f7;
+  flex-shrink: 0;
+}
+
+.admin-order-line-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-order-line-name p {
+  margin: 0;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-order-line-name span {
+  color: #777;
+  font-size: 0.75rem;
+}
+
+.admin-order-total {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+  font-size: 0.9rem;
+}
